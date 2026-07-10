@@ -6,3 +6,7 @@
 
 # env variables
 .env
+
+# material interno do curso (não publicado)
+CLAUDE.md
+docs/superpowers/
