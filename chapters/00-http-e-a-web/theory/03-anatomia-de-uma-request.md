@@ -76,6 +76,23 @@ Aprenda a ler esses símbolos, porque eles voltam o curso inteiro:
 
 Repare também no que você **não** escreveu: curl inventou o `Host`, o `User-Agent` e o `Accept` por conta própria. Ferramentas educadas preenchem o envelope por você.
 
+> **📦 Box: "Connection refused"?! Calma, está tudo bem.**
+>
+> No seu terminal, as linhas `*` provavelmente incluem algo assim antes da conexão:
+>
+> ```
+> *   Trying [::1]:8000...
+> * connect to ::1 port 8000 from ::1 port 59768 failed: Connection refused
+> *   Trying 127.0.0.1:8000...
+> * Connected to localhost (127.0.0.1) port 8000
+> ```
+>
+> Uma conexão *recusada*? Sim — e nenhum problema. Três coisas estão acontecendo:
+>
+> 1. **`localhost` tem dois endereços**: `::1` (o loopback do IPv6) e `127.0.0.1` (o do IPv4). O curl tenta o IPv6 primeiro. Nosso servidor escuta só no IPv4 — então a primeira batida encontra a porta 8000 *daquele endereço* vazia, e o sistema recusa na hora. O curl dá de ombros e tenta o endereço IPv4, onde o servidor está. Repare: a porta de destino foi 8000 nas duas tentativas; o que mudou foi o "prédio", não o "apartamento" (lição 02).
+> 2. **`Connection refused` não é uma conexão que caiu** — é "não há ninguém escutando neste endereço:porta", antes de qualquer conversa começar.
+> 3. **E esse `port 59768`?** Leia a frase inteira: `from ::1 port 59768`. É a porta de **origem**, do lado do curl. Toda conexão TCP tem porta nas duas pontas: a do servidor é fixa e conhecida (8000); a do cliente é sorteada pelo sistema só para aquela conexão — é por ela que a resposta acha o caminho de volta. Na sua máquina, o número será outro.
+
 ## As quatro flags que valem o capítulo
 
 **`-X` escolhe o método** (sem ela, curl faz GET):
