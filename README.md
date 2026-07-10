@@ -36,6 +36,11 @@ Nota honesta: se você está *um pouquinho* abaixo do piso, ainda dá para chega
 - **Quebre para aprender.** Os exercícios te entregam código quebrado ou incompleto. O `SOLUTIONS.md` explica o *raciocínio*, não só a resposta.
 - **Relatos honestos de trilha.** O `NOTES.md` de cada capítulo registra o que o autor entendia errado ou pela metade antes de escrever. Aprenda com as cicatrizes.
 
+## Comece aqui
+
+O curso começa no [capítulo 0 — HTTP e a web](chapters/00-http-e-a-web/README.md).
+Sem código do app ainda: primeiro a gramática, depois a conversa.
+
 ## A stack
 
 Python 3.12+, FastAPI, Pydantic, SQLAlchemy, Alembic, PostgreSQL, pytest — com Redis, uma fila de tarefas e Docker entrando quando o curso os merecer. Por que FastAPI e não Django ou Flask? Essa comparação é, por si só, uma lição — veja o capítulo 1.
