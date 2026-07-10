@@ -39,6 +39,10 @@ METODOS_POR_ROTA = {
 
 class Handler(BaseHTTPRequestHandler):
     server_version = "MiniServidorCap00/0.1"
+    # Sem esta linha, a stdlib responde como HTTP/1.0, que fecha a conexão
+    # a cada request. HTTP/1.1 mantém a conexão aberta — exige que toda
+    # resposta declare seu Content-Length (nós declaramos).
+    protocol_version = "HTTP/1.1"
 
     # ---------- utilitários ----------
 
