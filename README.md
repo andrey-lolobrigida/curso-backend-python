@@ -24,7 +24,7 @@ Poupe-se de alguma frustração — pule este curso (por enquanto!) se:
 - **Você é totalmente novo em Python.** Não vamos cobrir sintaxe, básicos de POO nem tratamento de exceções. Faça um curso introdutório primeiro — a gente espera, sério. Este repositório não vai a lugar nenhum.
 - **Você nunca encostou na linha de comando ou no git.** Não precisa ser um mago do git (navegar por este curso vai te *deixar* melhor em git — isso é proposital), mas `git checkout` não pode ser um encantamento assustador.
 - **Você quer uma referência rápida ou um cheatsheet.** Este é um curso de construir junto, com exercícios em que as coisas estão deliberadamente quebradas e você conserta. Ele recompensa tempo, não leitura dinâmica.
-- **Você quer frontend.** Aqui construímos a API — o motor, não o painel. JSON entra, JSON sai. (Que, aliás, é a cara da maioria das vagas de backend hoje em dia.)
+- **Você quer frontend.** Aqui construímos a API — o motor, não o painel. JSON entra, JSON sai.
 
 Nota honesta: se você está *um pouquinho* abaixo do piso, ainda dá para chegar lá — só espere pausar e pesquisar algumas coisas. Se está bem acima, passe rápido pelos primeiros capítulos e roube os exercícios.
 
