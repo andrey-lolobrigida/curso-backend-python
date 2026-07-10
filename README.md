@@ -34,7 +34,11 @@ Nota honesta: se você está *um pouquinho* abaixo do piso, ainda dá para chega
 - **Branches são capítulos.** Cada branch `chapter-XX` é a base de código ao final daquele capítulo. Os diffs entre capítulos são material do curso — leia-os.
 - **Teoria em pequenas doses.** Cada capítulo tem uma pasta `theory/` com lições curtas, uma ideia por arquivo.
 - **Quebre para aprender.** Os exercícios te entregam código quebrado ou incompleto. O `SOLUTIONS.md` explica o *raciocínio*, não só a resposta.
-- **Relatos honestos de trilha.** O `NOTES.md` de cada capítulo registra o que o autor entendia errado ou pela metade antes de escrever. Aprenda com as cicatrizes.
+
+## Comece aqui
+
+O curso começa no [capítulo 0 — HTTP e a web](chapters/00-http-e-a-web/README.md).
+Sem código do app ainda: primeiro a gramática, depois a conversa.
 
 ## A stack
 
