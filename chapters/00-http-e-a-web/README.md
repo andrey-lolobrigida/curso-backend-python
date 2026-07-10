@@ -39,8 +39,6 @@ O caminho que recomendo intercala teoria e prática:
 
 Os exercícios usam um mini-servidor local (`exercises/server.py` — `python3 server.py` e pronto). Você **não precisa entender o código dele**; ele é só o interlocutor. Empacou? O [SOLUTIONS.md](SOLUTIONS.md) explica cada resposta com o raciocínio — depois que você tentar.
 
-Há também o [NOTES.md](NOTES.md): o relato honesto do que o autor entendia errado sobre HTTP antes de escrever isto tudo. Vale a leitura ao final — errar acompanhado dói menos.
-
 ## O diff deste capítulo
 
 Este curso trata diffs como material de leitura: ver *o que mudou e por quê* ensina tanto quanto o estado final. Este capítulo nasceu na branch `chapter-00`, commit a commit:
