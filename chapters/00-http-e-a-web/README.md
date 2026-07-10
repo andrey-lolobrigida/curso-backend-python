@@ -47,7 +47,7 @@ Este curso trata diffs como material de leitura: ver *o que mudou e por quê* en
 git log --oneline --reverse v-chapter-00
 ```
 
-Escolha um commit e abra-o inteiro com `git show <hash>`. Os commits foram escritos para serem lidos nessa ordem — são a narrativa do capítulo em forma de código. (Quando o repositório estiver no GitHub, esta seção ganhará um link de comparação clicável.)
+Escolha um commit e abra-o inteiro com `git show <hash>`. Os commits foram escritos para serem lidos nessa ordem — são a narrativa do capítulo em forma de código. Prefere o browser? [A mesma lista está no GitHub](https://github.com/andrey-lolobrigida/curso-backend-python/commits/v-chapter-00) — só repare que lá ela vem do mais novo para o mais antigo; leia de baixo para cima.
 
 ## Ao terminar
 
