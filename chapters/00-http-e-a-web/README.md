@@ -43,8 +43,8 @@ Os exercícios usam um mini-servidor local (`exercises/server.py` — `python3 s
 
 Este curso trata diffs como material de leitura: ver *o que mudou e por quê* ensina tanto quanto o estado final. Este capítulo nasceu na branch `chapter-00`, commit a commit:
 
-```console
-$ git log --oneline --reverse v-chapter-00
+```bash
+git log --oneline --reverse v-chapter-00
 ```
 
 Escolha um commit e abra-o inteiro com `git show <hash>`. Os commits foram escritos para serem lidos nessa ordem — são a narrativa do capítulo em forma de código. (Quando o repositório estiver no GitHub, esta seção ganhará um link de comparação clicável.)

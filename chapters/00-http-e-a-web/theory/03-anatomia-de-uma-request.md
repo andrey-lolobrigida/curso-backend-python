@@ -41,12 +41,14 @@ $ python3 server.py
 Mini-servidor no ar em http://localhost:8000 — Ctrl+C para parar.
 ```
 
+Aproveitando essa primeira caixa: a convenção de todo o curso. Caixas **sem** `$` são comandos prontos para copiar e colar. Caixas **com** `$` são transcrições de uma sessão — as linhas com `$` são o que você digitou (sem o `$`), e as demais são o que o terminal respondeu.
+
 **Rode os comandos desta lição.** Ler curl é como ler partitura: não substitui tocar.
 
 O básico:
 
-```console
-$ curl localhost:8000/quadras
+```bash
+curl localhost:8000/quadras
 ```
 
 Isso faz um GET e imprime o corpo da resposta. Bonito, mas esconde a carta. A flag `-v` (*verbose*) mostra a conversa inteira:
@@ -97,26 +99,26 @@ Repare também no que você **não** escreveu: curl inventou o `Host`, o `User-A
 
 **`-X` escolhe o método** (sem ela, curl faz GET):
 
-```console
-$ curl -X DELETE localhost:8000/reservas/1
+```bash
+curl -X DELETE localhost:8000/reservas/1
 ```
 
 **`-H` adiciona um header**:
 
-```console
-$ curl -H "X-Senha: tentei-adivinhar" localhost:8000/segredo
+```bash
+curl -H "X-Senha: tentei-adivinhar" localhost:8000/segredo
 ```
 
 **`-d` manda um corpo** (e, de brinde, muda o método para POST — cuidado com essa gentileza):
 
-```console
-$ curl -d '{"quadra_id": 1, "quem": "ana"}' localhost:8000/reservas
+```bash
+curl -d '{"quadra_id": 1, "quem": "ana"}' localhost:8000/reservas
 ```
 
 **E combinando as três** — um POST completo, com corpo JSON devidamente anunciado:
 
-```console
-$ curl -v -X POST localhost:8000/reservas \
+```bash
+curl -v -X POST localhost:8000/reservas \
     -H "Content-Type: application/json" \
     -d '{"quadra_id": 1, "quem": "ana"}'
 ```

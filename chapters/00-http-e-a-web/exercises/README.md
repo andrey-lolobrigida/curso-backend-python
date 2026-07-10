@@ -48,8 +48,8 @@ O `nc` (netcat) é um canal direto: conecta na porta e transmite os bytes do arq
 
 - **R1.** Escreva `request-quadras.txt` com uma request `GET /quadras` válida: request line, header `Host`, header `Connection: close`, e a linha em branco final. Dispare:
 
-  ```console
-  $ nc localhost 8000 < request-quadras.txt
+  ```bash
+  nc localhost 8000 < request-quadras.txt
   ```
 
   Se o terminal ficar mudo, sua carta está incompleta (aposto na linha em branco). O `Connection: close` pede ao servidor para desligar depois de responder — sem ele, o `nc` fica pendurado esperando uma próxima request que nunca vem.

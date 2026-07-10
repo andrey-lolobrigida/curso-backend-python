@@ -19,8 +19,8 @@ Status `200`, corpo em JSON. O ponto da pergunta: acostumar o olho a ler a statu
 
 ### T2 — quantas quadras de tênis?
 
-```console
-$ curl "localhost:8000/quadras?esporte=tenis"
+```bash
+curl "localhost:8000/quadras?esporte=tenis"
 ```
 
 Duas: Quadra Central e Saibro do Fundo. A peneira foi a **query string** `?esporte=tenis` — o recurso continua sendo `/quadras`; a query só refina (lição 07). E as aspas na URL protegem o `?` do seu shell.
