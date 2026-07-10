@@ -21,11 +21,11 @@ Esse último ponto parece detalhe, mas define tudo. Um servidor é, essencialmen
 ```
    CLIENTE                                SERVIDOR
       |                                       |
-      |  ---------- request ---------------> |
-      |   "me dá a lista de quadras"         |  (processa: consulta
-      |                                      |   dados, decide, monta
+      |  ---------- request --------------->  |
+      |   "me dá a lista de quadras"          |  (processa: consulta
+      |                                       |   dados, decide, monta
       |  <--------- response ---------------  |   a resposta)
-      |   "aqui: 3 quadras, em JSON"         |
+      |   "aqui: 3 quadras, em JSON"          |
       |                                       |
 ```
 
