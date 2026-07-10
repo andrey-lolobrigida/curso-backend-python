@@ -7,6 +7,11 @@ QUANDO ESTIVER PRONTO, a saída deve ser exatamente:
 Regras do jogo: o endereço /antigo deve continuar no código (finja que veio
 de um config velho que você não controla). Seu conserto deve ENSINAR o script
 a reagir ao que o servidor responde. As lições 04 e 05 são suas amigas.
+
+Informação valiosa: o HTTPConnection é cioso. Para mandar uma SEGUNDA request
+pela mesma conexão, consuma antes a resposta anterior por completo — um
+resposta.read(), mesmo que você vá jogar o resultado fora. Isso é manha da
+biblioteca, não conceito de HTTP; não se cobre por não adivinhar.
 """
 
 import json
