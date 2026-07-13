@@ -1,10 +1,10 @@
 # Curso Completo de Backend em Python
 
-*(título provisório — o app em torno do qual o curso é construído também ainda não tem nome, estamos trabalhando nisso)*
+*(título provisório — mas o app em torno do qual o curso é construído já tem nome: **FairFare**)*
 
 Um curso mão na massa para quem já sabe escrever Python e talvez já tenha construído um pequeno app web — e agora quer entender como **backends de verdade** funcionam. Não é mais um tutorial de CRUD: este é o curso sobre tudo o que acontece *depois* que o tutorial acaba.
 
-Você vai construir uma aplicação do zero — um app de reservas em grupo com divisão de despesas — e fazê-la crescer capítulo a capítulo até algo com cara de produção: arquitetura em camadas, async, banco de dados de verdade, autenticação, cache, jobs em segundo plano, observabilidade, testes e deploy.
+Você vai construir uma aplicação do zero — o FairFare, um app de reservas em grupo com divisão de despesas — e fazê-la crescer capítulo a capítulo até algo com cara de produção: arquitetura em camadas, async, banco de dados de verdade, autenticação, cache, jobs em segundo plano, observabilidade, testes e deploy.
 
 ## Para quem é este curso
 
@@ -42,7 +42,7 @@ Sem código do app ainda: primeiro a gramática, depois a conversa.
 
 ## A stack
 
-Python 3.12+, FastAPI, Pydantic, SQLAlchemy, Alembic, PostgreSQL, pytest — com Redis, uma fila de tarefas e Docker entrando quando o curso os merecer. Por que FastAPI e não Django ou Flask? Essa comparação é, por si só, uma lição — veja o capítulo 1.
+Python 3.12+, FastAPI, Pydantic, SQLAlchemy, Alembic, PostgreSQL, pytest — com Redis, uma fila de tarefas e Docker entrando quando o curso os merecer. Por que FastAPI e não Django ou Flask? Essa comparação é, por si só, [uma lição](chapters/01-arquitetura-em-camadas/theory/02-por-que-fastapi.md).
 
 ## Arco do curso
 
