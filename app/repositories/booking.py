@@ -24,6 +24,10 @@ class BookingRepository:
     def get(self, booking_id: int) -> Booking | None:
         return self.db.get(Booking, booking_id)
 
+    def delete(self, booking: Booking) -> None:
+        self.db.delete(booking)
+        self.db.commit()
+
     def list_all(self) -> list[Booking]:
         return list(self.db.scalars(select(Booking)))
 

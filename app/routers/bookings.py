@@ -3,7 +3,13 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.schemas import BookingCreate, BookingOut
-from app.services import BookingConflictError, BookingService, RelatedNotFoundError
+from app.services import (
+    BookingConflictError,
+    BookingInPastError,
+    BookingNotFoundError,
+    BookingService,
+    RelatedNotFoundError,
+)
 
 router = APIRouter(prefix="/bookings", tags=["bookings"])
 
@@ -21,3 +27,13 @@ def create_booking(data: BookingCreate, db: Session = Depends(get_db)):
 @router.get("", response_model=list[BookingOut])
 def list_bookings(db: Session = Depends(get_db)):
     return BookingService(db).list_all()
+
+
+@router.delete("/{booking_id}", status_code=204)
+def cancel_booking(booking_id: int, db: Session = Depends(get_db)):
+    try:
+        BookingService(db).cancel(booking_id)
+    except BookingNotFoundError:
+        raise HTTPException(status_code=404, detail="reserva não existe")
+    except BookingInPastError:
+        raise HTTPException(status_code=409, detail="só reservas futuras podem ser canceladas")

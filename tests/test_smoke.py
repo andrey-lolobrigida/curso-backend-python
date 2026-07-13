@@ -95,3 +95,28 @@ def test_reserva_com_usuario_fantasma_e_404(client):
     resource = _cria_recurso(client)
     resp = _cria_reserva(client, 999, resource["id"], "2026-08-01T10:00:00", "2026-08-01T12:00:00")
     assert resp.status_code == 404
+
+
+def test_cancela_reserva_futura(client):
+    user = _cria_usuario(client)
+    resource = _cria_recurso(client)
+    booking = _cria_reserva(
+        client, user["id"], resource["id"], "2030-01-01T10:00:00", "2030-01-01T12:00:00"
+    ).json()
+    resp = client.delete(f"/bookings/{booking['id']}")
+    assert resp.status_code == 204
+    assert client.get("/bookings").json() == []
+
+
+def test_nao_cancela_reserva_passada(client):
+    user = _cria_usuario(client)
+    resource = _cria_recurso(client)
+    booking = _cria_reserva(
+        client, user["id"], resource["id"], "2020-01-01T10:00:00", "2020-01-01T12:00:00"
+    ).json()
+    resp = client.delete(f"/bookings/{booking['id']}")
+    assert resp.status_code == 409
+
+
+def test_cancelar_reserva_inexistente_e_404(client):
+    assert client.delete("/bookings/999").status_code == 404

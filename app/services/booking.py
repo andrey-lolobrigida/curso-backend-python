@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy.orm import Session
 
 from app.models import Booking
@@ -10,6 +12,14 @@ class RelatedNotFoundError(Exception):
 
 
 class BookingConflictError(Exception):
+    pass
+
+
+class BookingNotFoundError(Exception):
+    pass
+
+
+class BookingInPastError(Exception):
     pass
 
 
@@ -29,6 +39,14 @@ class BookingService:
             raise BookingConflictError
         booking = self.bookings.create(data.user_id, data.resource_id, data.starts_at, data.ends_at)
         return self._to_out(booking)
+
+    def cancel(self, booking_id: int) -> None:
+        booking = self.bookings.get(booking_id)
+        if booking is None:
+            raise BookingNotFoundError
+        if booking.starts_at <= datetime.now():
+            raise BookingInPastError
+        self.bookings.delete(booking)
 
     def list_all(self) -> list[BookingOut]:
         return [self._to_out(b) for b in self.bookings.list_all()]
