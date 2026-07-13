@@ -1,38 +1,20 @@
 from fastapi import Depends, FastAPI, HTTPException
-from pydantic import BaseModel, ConfigDict, EmailStr
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.repositories import ResourceRepository, UserRepository
+from app.schemas import (
+    BookingCreate,
+    BookingOut,
+    ResourceCreate,
+    ResourceOut,
+    UserCreate,
+    UserOut,
+)
+from app.services import BookingConflictError, BookingService, RelatedNotFoundError
 
 app = FastAPI(title="FairFare")
-
-
-class UserCreate(BaseModel):
-    nome: str
-    email: EmailStr
-
-
-class UserOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    nome: str
-    email: str
-
-
-class ResourceCreate(BaseModel):
-    nome: str
-    tipo: str
-
-
-class ResourceOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    nome: str
-    tipo: str
 
 
 @app.post("/users", status_code=201, response_model=UserOut)
@@ -72,3 +54,18 @@ def get_resource(resource_id: int, db: Session = Depends(get_db)):
     if resource is None:
         raise HTTPException(status_code=404, detail="recurso não existe")
     return resource
+
+
+@app.post("/bookings", status_code=201, response_model=BookingOut)
+def create_booking(data: BookingCreate, db: Session = Depends(get_db)):
+    try:
+        return BookingService(db).create(data)
+    except RelatedNotFoundError:
+        raise HTTPException(status_code=404, detail="usuário ou recurso não existe")
+    except BookingConflictError:
+        raise HTTPException(status_code=409, detail="o recurso já está reservado nesse horário")
+
+
+@app.get("/bookings", response_model=list[BookingOut])
+def list_bookings(db: Session = Depends(get_db)):
+    return BookingService(db).list_all()
