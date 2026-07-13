@@ -4,10 +4,8 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.database import Base, engine, get_db
+from app.database import get_db
 from app.models import Resource, User
-
-Base.metadata.create_all(engine)
 
 app = FastAPI(title="FairFare")
 
@@ -27,6 +25,7 @@ class UserOut(BaseModel):
 
 class ResourceCreate(BaseModel):
     nome: str
+    tipo: str
 
 
 class ResourceOut(BaseModel):
@@ -34,6 +33,7 @@ class ResourceOut(BaseModel):
 
     id: int
     nome: str
+    tipo: str
 
 
 @app.post("/users", status_code=201, response_model=UserOut)
@@ -63,7 +63,7 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
 
 @app.post("/resources", status_code=201, response_model=ResourceOut)
 def create_resource(resource: ResourceCreate, db: Session = Depends(get_db)):
-    new_resource = Resource(nome=resource.nome)
+    new_resource = Resource(nome=resource.nome, tipo=resource.tipo)
     db.add(new_resource)
     db.commit()
     db.refresh(new_resource)
