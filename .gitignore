@@ -7,6 +7,9 @@
 # bytecode
 __pycache__/
 
+# banco local
+*.db
+
 # env variables
 .env
 
