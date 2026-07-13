@@ -4,6 +4,9 @@
 # venv
 .venv/
 
+# bytecode
+__pycache__/
+
 # env variables
 .env
 
