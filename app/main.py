@@ -1,9 +1,13 @@
-import sqlite3
+from fastapi import Depends, FastAPI, HTTPException
+from pydantic import BaseModel, ConfigDict, EmailStr
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
 
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, EmailStr
+from app.database import Base, engine, get_db
+from app.models import Resource, User
 
-DB_PATH = "fairfare.db"
+Base.metadata.create_all(engine)
 
 app = FastAPI(title="FairFare")
 
@@ -14,62 +18,66 @@ class UserCreate(BaseModel):
 
 
 class UserOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     nome: str
     email: str
 
 
-def get_conn() -> sqlite3.Connection:
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+class ResourceCreate(BaseModel):
+    nome: str
 
 
-def ensure_tables() -> None:
-    conn = get_conn()
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS users ("
-        "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-        "nome TEXT NOT NULL, "
-        "email TEXT NOT NULL UNIQUE)"
-    )
-    conn.commit()
-    conn.close()
+class ResourceOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
 
-
-ensure_tables()
+    id: int
+    nome: str
 
 
 @app.post("/users", status_code=201, response_model=UserOut)
-def create_user(user: UserCreate):
-    conn = get_conn()
+def create_user(user: UserCreate, db: Session = Depends(get_db)):
+    new_user = User(nome=user.nome, email=user.email)
+    db.add(new_user)
     try:
-        cursor = conn.execute(
-            "INSERT INTO users (nome, email) VALUES (?, ?)",
-            (user.nome, user.email),
-        )
-        conn.commit()
-    except sqlite3.IntegrityError:
-        conn.close()
+        db.commit()
+    except IntegrityError:
         raise HTTPException(status_code=409, detail="email já cadastrado")
-    row = conn.execute("SELECT * FROM users WHERE id = ?", (cursor.lastrowid,)).fetchone()
-    conn.close()
-    return dict(row)
+    db.refresh(new_user)
+    return new_user
 
 
 @app.get("/users", response_model=list[UserOut])
-def list_users():
-    conn = get_conn()
-    rows = conn.execute("SELECT * FROM users").fetchall()
-    conn.close()
-    return [dict(row) for row in rows]
+def list_users(db: Session = Depends(get_db)):
+    return list(db.scalars(select(User)))
 
 
 @app.get("/users/{user_id}", response_model=UserOut)
-def get_user(user_id: int):
-    conn = get_conn()
-    row = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
-    conn.close()
-    if row is None:
+def get_user(user_id: int, db: Session = Depends(get_db)):
+    user = db.get(User, user_id)
+    if user is None:
         raise HTTPException(status_code=404, detail="usuário não existe")
-    return dict(row)
+    return user
+
+
+@app.post("/resources", status_code=201, response_model=ResourceOut)
+def create_resource(resource: ResourceCreate, db: Session = Depends(get_db)):
+    new_resource = Resource(nome=resource.nome)
+    db.add(new_resource)
+    db.commit()
+    db.refresh(new_resource)
+    return new_resource
+
+
+@app.get("/resources", response_model=list[ResourceOut])
+def list_resources(db: Session = Depends(get_db)):
+    return list(db.scalars(select(Resource)))
+
+
+@app.get("/resources/{resource_id}", response_model=ResourceOut)
+def get_resource(resource_id: int, db: Session = Depends(get_db)):
+    resource = db.get(Resource, resource_id)
+    if resource is None:
+        raise HTTPException(status_code=404, detail="recurso não existe")
+    return resource
