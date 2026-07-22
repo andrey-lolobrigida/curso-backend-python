@@ -4,12 +4,19 @@
 # venv
 .venv/
 
+# bytecode
+__pycache__/
+
+# banco local
+*.db
+
 # env variables
 .env
 
 # material interno do curso (não publicado)
 CLAUDE.md
 docs/superpowers/
+NOTES.md
 
 # obsidian
 .obsidian

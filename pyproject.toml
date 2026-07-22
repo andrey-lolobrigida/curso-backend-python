@@ -2,4 +2,23 @@
 name = "python-backend-course"
 version = "0.1.0"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "alembic>=1.18.5",
+    "email-validator>=2.3.0",
+    "fastapi>=0.139.0",
+    "sqlalchemy>=2.0.51",
+    "uvicorn>=0.51.0",
+]
+
+[dependency-groups]
+dev = [
+    "httpx2>=2.7.0",
+    "pytest>=9.1.1",
+    "ruff>=0.15.21",
+]
+
+[tool.ruff]
+line-length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
