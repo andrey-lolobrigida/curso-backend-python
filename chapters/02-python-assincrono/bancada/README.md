@@ -16,6 +16,7 @@ Regras da bancada:
 |---|---|---|
 | `servidor.py` | Um FastAPI com duas rotas idênticas que dormem 1s — uma `def`, outra `async def` | 01 |
 | `carga.py` | Dispara N requests ao mesmo tempo e cronometra o total | 01 |
+| `loop.py` | O event loop em quatro cenas: `await` em série, `gather`, o sleep errado, corrotina sem `await` | 03 |
 
 *(A tabela cresce junto com o capítulo.)*
 
