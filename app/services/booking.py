@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Booking
 from app.repositories import BookingRepository, ResourceRepository, UserRepository
@@ -24,36 +24,40 @@ class BookingInPastError(Exception):
 
 
 class BookingService:
-    def __init__(self, db: Session):
+    def __init__(self, db: AsyncSession):
         self.bookings = BookingRepository(db)
         self.users = UserRepository(db)
         self.resources = ResourceRepository(db)
 
-    def create(self, data: BookingCreate) -> BookingOut:
-        user = self.users.get(data.user_id)
-        resource = self.resources.get(data.resource_id)
+    async def create(self, data: BookingCreate) -> BookingOut:
+        user = await self.users.get(data.user_id)
+        resource = await self.resources.get(data.resource_id)
         if user is None or resource is None:
             raise RelatedNotFoundError
-        overlapping = self.bookings.find_overlapping(data.resource_id, data.starts_at, data.ends_at)
+        overlapping = await self.bookings.find_overlapping(
+            data.resource_id, data.starts_at, data.ends_at
+        )
         if overlapping:
             raise BookingConflictError
-        booking = self.bookings.create(data.user_id, data.resource_id, data.starts_at, data.ends_at)
-        return self._to_out(booking)
+        booking = await self.bookings.create(
+            data.user_id, data.resource_id, data.starts_at, data.ends_at
+        )
+        return await self._to_out(booking)
 
-    def cancel(self, booking_id: int) -> None:
-        booking = self.bookings.get(booking_id)
+    async def cancel(self, booking_id: int) -> None:
+        booking = await self.bookings.get(booking_id)
         if booking is None:
             raise BookingNotFoundError
         if booking.starts_at <= datetime.now():
             raise BookingInPastError
-        self.bookings.delete(booking)
+        await self.bookings.delete(booking)
 
-    def list_all(self) -> list[BookingOut]:
-        return [self._to_out(b) for b in self.bookings.list_all()]
+    async def list_all(self) -> list[BookingOut]:
+        return [await self._to_out(b) for b in await self.bookings.list_all()]
 
-    def _to_out(self, booking: Booking) -> BookingOut:
-        user = self.users.get(booking.user_id)
-        resource = self.resources.get(booking.resource_id)
+    async def _to_out(self, booking: Booking) -> BookingOut:
+        user = await self.users.get(booking.user_id)
+        resource = await self.resources.get(booking.resource_id)
         return BookingOut(
             id=booking.id,
             user_id=booking.user_id,

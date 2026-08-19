@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.schemas import BookingCreate, BookingOut
@@ -15,9 +15,9 @@ router = APIRouter(prefix="/bookings", tags=["bookings"])
 
 
 @router.post("", status_code=201, response_model=BookingOut)
-def create_booking(data: BookingCreate, db: Session = Depends(get_db)):
+async def create_booking(data: BookingCreate, db: AsyncSession = Depends(get_db)):
     try:
-        return BookingService(db).create(data)
+        return await BookingService(db).create(data)
     except RelatedNotFoundError:
         raise HTTPException(status_code=404, detail="usuário ou recurso não existe")
     except BookingConflictError:
@@ -25,14 +25,14 @@ def create_booking(data: BookingCreate, db: Session = Depends(get_db)):
 
 
 @router.get("", response_model=list[BookingOut])
-def list_bookings(db: Session = Depends(get_db)):
-    return BookingService(db).list_all()
+async def list_bookings(db: AsyncSession = Depends(get_db)):
+    return await BookingService(db).list_all()
 
 
 @router.delete("/{booking_id}", status_code=204)
-def cancel_booking(booking_id: int, db: Session = Depends(get_db)):
+async def cancel_booking(booking_id: int, db: AsyncSession = Depends(get_db)):
     try:
-        BookingService(db).cancel(booking_id)
+        await BookingService(db).cancel(booking_id)
     except BookingNotFoundError:
         raise HTTPException(status_code=404, detail="reserva não existe")
     except BookingInPastError:

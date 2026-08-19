@@ -1,19 +1,21 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import DeclarativeBase, sessionmaker
+from collections.abc import AsyncGenerator
 
-DATABASE_URL = "sqlite:///fairfare.db"
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import DeclarativeBase
 
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
-SessionLocal = sessionmaker(bind=engine)
+DATABASE_URL = "sqlite+aiosqlite:///fairfare.db"
+
+# O Alembic continua síncrono, e por isso precisa da sua própria URL. A lição 08 explica.
+SYNC_DATABASE_URL = "sqlite:///fairfare.db"
+
+engine = create_async_engine(DATABASE_URL)
+SessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False)
 
 
 class Base(DeclarativeBase):
     pass
 
 
-def get_db():
-    db = SessionLocal()
-    try:
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    async with SessionLocal() as db:
         yield db
-    finally:
-        db.close()
