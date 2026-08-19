@@ -1,5 +1,5 @@
 import pytest
-from fastapi.testclient import TestClient
+from httpx2 import ASGITransport, AsyncClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -10,7 +10,7 @@ from app.main import app as fastapi_app
 
 
 @pytest.fixture()
-def client():
+async def client():
     engine = create_engine(
         "sqlite://",
         connect_args={"check_same_thread": False},
@@ -27,6 +27,7 @@ def client():
             db.close()
 
     fastapi_app.dependency_overrides[get_db] = override_get_db
-    with TestClient(fastapi_app) as test_client:
+    transport = ASGITransport(app=fastapi_app)
+    async with AsyncClient(transport=transport, base_url="http://test") as test_client:
         yield test_client
     fastapi_app.dependency_overrides.clear()

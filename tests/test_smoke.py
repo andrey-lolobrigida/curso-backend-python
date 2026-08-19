@@ -1,17 +1,17 @@
-def _cria_usuario(client, email="ana@example.com"):
-    resp = client.post("/users", json={"nome": "Ana", "email": email})
+async def _cria_usuario(client, email="ana@example.com"):
+    resp = await client.post("/users", json={"nome": "Ana", "email": email})
     assert resp.status_code == 201
     return resp.json()
 
 
-def _cria_recurso(client):
-    resp = client.post("/resources", json={"nome": "Quadra 1", "tipo": "quadra"})
+async def _cria_recurso(client):
+    resp = await client.post("/resources", json={"nome": "Quadra 1", "tipo": "quadra"})
     assert resp.status_code == 201
     return resp.json()
 
 
-def _cria_reserva(client, user_id, resource_id, starts_at, ends_at):
-    return client.post(
+async def _cria_reserva(client, user_id, resource_id, starts_at, ends_at):
+    return await client.post(
         "/bookings",
         json={
             "user_id": user_id,
@@ -22,39 +22,40 @@ def _cria_reserva(client, user_id, resource_id, starts_at, ends_at):
     )
 
 
-def test_cria_e_busca_usuario(client):
-    user = _cria_usuario(client)
-    resp = client.get(f"/users/{user['id']}")
+async def test_cria_e_busca_usuario(client):
+    user = await _cria_usuario(client)
+    resp = await client.get(f"/users/{user['id']}")
     assert resp.status_code == 200
     assert resp.json()["nome"] == "Ana"
 
 
-def test_email_invalido_e_422(client):
-    resp = client.post("/users", json={"nome": "Ana", "email": "sem-arroba"})
+async def test_email_invalido_e_422(client):
+    resp = await client.post("/users", json={"nome": "Ana", "email": "sem-arroba"})
     assert resp.status_code == 422
 
 
-def test_email_duplicado_e_409(client):
-    _cria_usuario(client)
-    resp = client.post("/users", json={"nome": "Outra Ana", "email": "ana@example.com"})
+async def test_email_duplicado_e_409(client):
+    await _cria_usuario(client)
+    resp = await client.post("/users", json={"nome": "Outra Ana", "email": "ana@example.com"})
     assert resp.status_code == 409
 
 
-def test_usuario_inexistente_e_404(client):
-    assert client.get("/users/999").status_code == 404
+async def test_usuario_inexistente_e_404(client):
+    resp = await client.get("/users/999")
+    assert resp.status_code == 404
 
 
-def test_cria_e_lista_recurso(client):
-    _cria_recurso(client)
-    resp = client.get("/resources")
+async def test_cria_e_lista_recurso(client):
+    await _cria_recurso(client)
+    resp = await client.get("/resources")
     assert resp.status_code == 200
     assert resp.json()[0]["tipo"] == "quadra"
 
 
-def test_cria_reserva(client):
-    user = _cria_usuario(client)
-    resource = _cria_recurso(client)
-    resp = _cria_reserva(
+async def test_cria_reserva(client):
+    user = await _cria_usuario(client)
+    resource = await _cria_recurso(client)
+    resp = await _cria_reserva(
         client, user["id"], resource["id"], "2026-08-01T10:00:00", "2026-08-01T12:00:00"
     )
     assert resp.status_code == 201
@@ -62,61 +63,71 @@ def test_cria_reserva(client):
     assert resp.json()["resource_nome"] == "Quadra 1"
 
 
-def test_reserva_conflitante_e_409(client):
-    user = _cria_usuario(client)
-    resource = _cria_recurso(client)
-    _cria_reserva(client, user["id"], resource["id"], "2026-08-01T10:00:00", "2026-08-01T12:00:00")
-    resp = _cria_reserva(
+async def test_reserva_conflitante_e_409(client):
+    user = await _cria_usuario(client)
+    resource = await _cria_recurso(client)
+    await _cria_reserva(
+        client, user["id"], resource["id"], "2026-08-01T10:00:00", "2026-08-01T12:00:00"
+    )
+    resp = await _cria_reserva(
         client, user["id"], resource["id"], "2026-08-01T11:00:00", "2026-08-01T13:00:00"
     )
     assert resp.status_code == 409
 
 
-def test_reservas_encostadas_nao_conflitam(client):
-    user = _cria_usuario(client)
-    resource = _cria_recurso(client)
-    _cria_reserva(client, user["id"], resource["id"], "2026-08-01T10:00:00", "2026-08-01T12:00:00")
-    resp = _cria_reserva(
+async def test_reservas_encostadas_nao_conflitam(client):
+    user = await _cria_usuario(client)
+    resource = await _cria_recurso(client)
+    await _cria_reserva(
+        client, user["id"], resource["id"], "2026-08-01T10:00:00", "2026-08-01T12:00:00"
+    )
+    resp = await _cria_reserva(
         client, user["id"], resource["id"], "2026-08-01T12:00:00", "2026-08-01T14:00:00"
     )
     assert resp.status_code == 201
 
 
-def test_reserva_com_fim_antes_do_inicio_e_422(client):
-    user = _cria_usuario(client)
-    resource = _cria_recurso(client)
-    resp = _cria_reserva(
+async def test_reserva_com_fim_antes_do_inicio_e_422(client):
+    user = await _cria_usuario(client)
+    resource = await _cria_recurso(client)
+    resp = await _cria_reserva(
         client, user["id"], resource["id"], "2026-08-01T12:00:00", "2026-08-01T10:00:00"
     )
     assert resp.status_code == 422
 
 
-def test_reserva_com_usuario_fantasma_e_404(client):
-    resource = _cria_recurso(client)
-    resp = _cria_reserva(client, 999, resource["id"], "2026-08-01T10:00:00", "2026-08-01T12:00:00")
+async def test_reserva_com_usuario_fantasma_e_404(client):
+    resource = await _cria_recurso(client)
+    resp = await _cria_reserva(
+        client, 999, resource["id"], "2026-08-01T10:00:00", "2026-08-01T12:00:00"
+    )
     assert resp.status_code == 404
 
 
-def test_cancela_reserva_futura(client):
-    user = _cria_usuario(client)
-    resource = _cria_recurso(client)
-    booking = _cria_reserva(
+async def test_cancela_reserva_futura(client):
+    user = await _cria_usuario(client)
+    resource = await _cria_recurso(client)
+    resposta = await _cria_reserva(
         client, user["id"], resource["id"], "2030-01-01T10:00:00", "2030-01-01T12:00:00"
-    ).json()
-    resp = client.delete(f"/bookings/{booking['id']}")
+    )
+    booking = resposta.json()
+    resp = await client.delete(f"/bookings/{booking['id']}")
     assert resp.status_code == 204
-    assert client.get("/bookings").json() == []
+    listagem = await client.get("/bookings")
+    assert listagem.json() == []
 
 
-def test_nao_cancela_reserva_passada(client):
-    user = _cria_usuario(client)
-    resource = _cria_recurso(client)
-    booking = _cria_reserva(
+async def test_nao_cancela_reserva_passada(client):
+    user = await _cria_usuario(client)
+    resource = await _cria_recurso(client)
+    resposta = await _cria_reserva(
         client, user["id"], resource["id"], "2020-01-01T10:00:00", "2020-01-01T12:00:00"
-    ).json()
-    resp = client.delete(f"/bookings/{booking['id']}")
+    )
+    booking = resposta.json()
+    resp = await client.delete(f"/bookings/{booking['id']}")
     assert resp.status_code == 409
 
 
-def test_cancelar_reserva_inexistente_e_404(client):
-    assert client.delete("/bookings/999").status_code == 404
+async def test_cancelar_reserva_inexistente_e_404(client):
+    resp = await client.delete("/bookings/999")
+    assert resp.status_code == 404
