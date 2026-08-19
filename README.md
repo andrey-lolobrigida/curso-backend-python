@@ -40,6 +40,14 @@ Nota honesta: se você está *um pouquinho* abaixo do piso, ainda dá para chega
 O curso começa no [capítulo 0 — HTTP e a web](chapters/00-http-e-a-web/README.md).
 Sem código do app ainda: primeiro a gramática, depois a conversa.
 
+Escritos até agora:
+
+| # | Capítulo | O que você sai sabendo |
+|---|----------|------------------------|
+| 0 | [HTTP e a web](chapters/00-http-e-a-web/README.md) | A conversa que todo backend tem: métodos, status, corpo, cabeçalhos |
+| 1 | [Arquitetura em camadas](chapters/01-arquitetura-em-camadas/README.md) | Routers, services, repositories, models, schemas, migrações e testes |
+| 2 | [Python assíncrono](chapters/02-python-assincrono/README.md) | Event loop, bloqueio, o GIL, pool de conexões — e como medir tudo isso |
+
 ## A stack
 
 Python 3.12+, FastAPI, Pydantic, SQLAlchemy, Alembic, PostgreSQL, pytest — com Redis, uma fila de tarefas e Docker entrando quando o curso os merecer. Por que FastAPI e não Django ou Flask? Essa comparação é, por si só, [uma lição](chapters/01-arquitetura-em-camadas/theory/02-por-que-fastapi.md).
