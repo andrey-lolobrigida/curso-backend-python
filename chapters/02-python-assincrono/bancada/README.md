@@ -18,6 +18,7 @@ Regras da bancada:
 | `carga.py` | Dispara N requests ao mesmo tempo e cronometra o total | 01 |
 | `loop.py` | O event loop em quatro cenas: `await` em série, `gather`, o sleep errado, corrotina sem `await` | 03 |
 | `lazy_load.py` | Falha de propósito: o `MissingGreenlet` do lazy load no SQLAlchemy async | 05 |
+| `cpu.py` | Trabalho de CPU em série, em threads e em processos — o GIL na balança | 10 |
 
 *(A tabela cresce junto com o capítulo.)*
 
