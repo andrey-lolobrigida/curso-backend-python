@@ -19,6 +19,7 @@ Regras da bancada:
 | `carga.py` | Dispara N requests, conta os status um a um, aceita headers extras (com `{i}` virando o número da request) e sabe abrir uma conexão nova a cada uma | 02 |
 | `cebola.py` | Três middlewares que imprimem quando entram e quando saem, para ver a ordem invertida do `add_middleware` | 03 |
 | `pagina/index.html` | Uma página estática que lista e cria usuários do FairFare via `fetch` — de outra porta, ou seja, de outra origem | 04 |
+| `proxy.py` | Um proxy reverso em cinquenta linhas: repassa `/api/...` para o FairFare e serve a página como estático, imprimindo tudo o que atravessa | 06 |
 
 *(A tabela cresce junto com o capítulo.)*
 
@@ -87,4 +88,12 @@ python3 -m http.server 8080 --directory chapters/03-entre-o-cliente-e-o-router/b
 ```
 
 Abra `http://localhost:8080` **com o console do browser aberto** — é lá que a lição 04 acontece. A página lista e cria usuários, então o banco precisa estar migrado: rode `uv run alembic upgrade head` antes.
+
+O proxy também mora na 8080, então ele entra no lugar do `http.server`, com o FairFare de pé na primeira aba. Na segunda aba, o proxy reverso da lição 06 — que repassa `/api/...` para o FairFare e serve a página como estático (a página só passa a usá-lo na lição 07):
+
+```bash
+uv run uvicorn proxy:app --port 8080 --app-dir chapters/03-entre-o-cliente-e-o-router/bancada
+```
+
+Bata nele com `curl -s localhost:8080/api/users` e leia o terminal do proxy: ele imprime toda request que atravessa, corpo incluído.
 
