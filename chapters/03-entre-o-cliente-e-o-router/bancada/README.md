@@ -1,0 +1,54 @@
+# A bancada
+
+Isto é **instrumento, não produto**.
+
+Vale a mesma regra do capítulo 2: o curso vive numa única base de código que cresce, o FairFare, em `app/`. Esta pasta é a exceção declarada. São aparelhos — servidores de mentira, um espião que imprime o que chega, um proxy escrito à mão — que existem só para fazer aparecer na tela o que normalmente é invisível entre o cliente e a primeira linha do seu router.
+
+Regras da bancada:
+
+- **Nada daqui entra no FairFare.** Se um trecho parecer útil no app, ele volta pelo caminho normal: uma lição que o motive.
+- **Nada daqui é exemplo de produção.** O proxy desta pasta imprime corpos de request no terminal — de propósito, porque é isso que a gente veio ver. Num servidor de verdade isso é um vazamento de dados, não um recurso.
+- **Tudo que é Python aqui roda.** As saídas que aparecem nas lições saíram destes arquivos, na máquina do autor. Rode você também: as suas vão ser parecidas, não idênticas (a porta do cliente muda a cada conexão), e a lição sempre diz o que importa olhar.
+
+## Os aparelhos
+
+| Arquivo | O que é | Nasce na lição |
+|---|---|---|
+| `asgi_cru.py` | Um app ASGI sem framework nenhum: três argumentos, duas mensagens, uma resposta de texto | 01 |
+| `espiao.py` | O FairFare de verdade embrulhado num middleware que imprime o `scope` de cada request | 01 |
+
+*(A tabela cresce junto com o capítulo.)*
+
+## As portas
+
+O capítulo inteiro respeita este mapa. Quando uma lição pedir duas ou três abas de terminal ao mesmo tempo — e várias vão pedir —, cada aba ocupa uma porta diferente:
+
+| Porta | Quem mora ali |
+|---|---|
+| 8000 | O FairFare (ou um servidor da bancada no lugar dele) |
+| 8080 | A página estática / o proxy reverso |
+| 8443 | O proxy reverso com TLS |
+
+Se uma porta estiver ocupada, o uvicorn morre na subida com um erro claro (`address already in use`). Mate o servidor da aba anterior antes de subir o próximo.
+
+## Como usar
+
+O app ASGI cru, numa aba:
+
+```bash
+uv run uvicorn asgi_cru:app --app-dir chapters/03-entre-o-cliente-e-o-router/bancada
+```
+
+Em outra, bata nele:
+
+```bash
+curl -s localhost:8000/qualquer/coisa
+```
+
+O espião — o FairFare de verdade, com o `scope` impresso no terminal do servidor:
+
+```bash
+uv run python -m uvicorn espiao:app --app-dir chapters/03-entre-o-cliente-e-o-router/bancada
+```
+
+O `python -m` não é enfeite: com `--app-dir`, o uvicorn põe a bancada no `sys.path` **no lugar** do diretório atual, e o espião importa `app.main`. Com o `-m`, o próprio Python já pôs a raiz lá antes. Sem ele, o import falha. A lição 01 explica.
