@@ -47,6 +47,7 @@ Escritos até agora:
 | 0 | [HTTP e a web](chapters/00-http-e-a-web/README.md) | A conversa que todo backend tem: métodos, status, corpo, cabeçalhos |
 | 1 | [Arquitetura em camadas](chapters/01-arquitetura-em-camadas/README.md) | Routers, services, repositories, models, schemas, migrações e testes |
 | 2 | [Python assíncrono](chapters/02-python-assincrono/README.md) | Event loop, bloqueio, o GIL, pool de conexões — e como medir tudo isso |
+| 3 | [Entre o cliente e o router](chapters/03-entre-o-cliente-e-o-router/README.md) | O que o uvicorn faz, middleware, CORS, rate limiting, proxy reverso, TLS, workers |
 
 ## A stack
 
