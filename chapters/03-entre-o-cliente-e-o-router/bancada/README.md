@@ -16,6 +16,7 @@ Regras da bancada:
 |---|---|---|
 | `asgi_cru.py` | Um app ASGI sem framework nenhum: três argumentos, duas mensagens, uma resposta de texto | 01 |
 | `espiao.py` | O FairFare de verdade embrulhado num middleware que imprime o `scope` de cada request | 01 |
+| `carga.py` | Dispara N requests, conta os status um a um, aceita headers extras (com `{i}` virando o número da request) e sabe abrir uma conexão nova a cada uma | 02 |
 
 *(A tabela cresce junto com o capítulo.)*
 
@@ -52,3 +53,13 @@ uv run python -m uvicorn espiao:app --app-dir chapters/03-entre-o-cliente-e-o-ro
 ```
 
 O `python -m` não é enfeite: com `--app-dir`, o uvicorn põe a bancada no `sys.path` **no lugar** do diretório atual, e o espião importa `app.main`. Com o `-m`, o próprio Python já pôs a raiz lá antes. Sem ele, o import falha. A lição 01 explica.
+
+A carga, contra o FairFare de sempre. O mesmo par de comandos da lição 02 — o segundo joga fora a conexão depois de cada request:
+
+```bash
+C=chapters/03-entre-o-cliente-e-o-router/bancada/carga.py
+uv run python $C http://localhost:8000/users 200 --em-serie
+uv run python $C http://localhost:8000/users 200 --em-serie --nova-conexao
+```
+
+Sem `--em-serie`, ela dispara tudo de uma vez — é assim que a lição 02 arranca um `503` de um servidor com `--limit-concurrency`.
