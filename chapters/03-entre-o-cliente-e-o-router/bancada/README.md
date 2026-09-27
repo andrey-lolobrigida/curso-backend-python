@@ -17,6 +17,7 @@ Regras da bancada:
 | `asgi_cru.py` | Um app ASGI sem framework nenhum: três argumentos, duas mensagens, uma resposta de texto | 01 |
 | `espiao.py` | O FairFare de verdade embrulhado num middleware que imprime o `scope` de cada request | 01 |
 | `carga.py` | Dispara N requests, conta os status um a um, aceita headers extras (com `{i}` virando o número da request) e sabe abrir uma conexão nova a cada uma | 02 |
+| `cebola.py` | Três middlewares que imprimem quando entram e quando saem, para ver a ordem invertida do `add_middleware` | 03 |
 
 *(A tabela cresce junto com o capítulo.)*
 
@@ -63,3 +64,12 @@ uv run python $C http://localhost:8000/users 200 --em-serie --nova-conexao
 ```
 
 Sem `--em-serie`, ela dispara tudo de uma vez — é assim que a lição 02 arranca um `503` de um servidor com `--limit-concurrency`.
+
+A cebola — três camadas em volta de um router de uma linha:
+
+```bash
+uv run uvicorn cebola:app --app-dir chapters/03-entre-o-cliente-e-o-router/bancada
+```
+
+Bata nela com `curl -s localhost:8000/` e leia o terminal **do servidor**: os middlewares imprimem lá, não na resposta. A ordem que aparece é o assunto da lição 03.
+
