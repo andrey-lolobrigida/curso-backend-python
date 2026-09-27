@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <title>FairFare — página de teste</title>
+  <style>body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; } pre { color: #b00; white-space: pre-wrap; }</style>
+</head>
+<body>
+  <h1>Usuários do FairFare</h1>
+  <ul id="lista"></ul>
+
+  <form id="novo">
+    <input name="nome" placeholder="nome" required>
+    <input name="email" type="email" placeholder="email" required>
+    <button>Criar</button>
+  </form>
+  <pre id="erro"></pre>
+
+  <script>
+    // Lição 04: a página mora em http://localhost:8080 e a API em http://localhost:8000.
+    // Origens diferentes — e é disso que a lição trata.
+    const API = "http://localhost:8000";
+
+    const lista = document.getElementById("lista");
+    const erro = document.getElementById("erro");
+    const form = document.getElementById("novo");
+
+    async function listar() {
+      const resposta = await fetch(`${API}/users`);
+      const usuarios = await resposta.json();
+      lista.replaceChildren(...usuarios.map((u) => {
+        const item = document.createElement("li");
+        item.textContent = `${u.nome} <${u.email}>`;
+        return item;
+      }));
+    }
+
+    form.addEventListener("submit", async (evento) => {
+      evento.preventDefault();
+      const dados = Object.fromEntries(new FormData(form));
+      // JSON no corpo => o browser manda um preflight (OPTIONS) antes do POST.
+      const resposta = await fetch(`${API}/users`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(dados),
+      });
+      if (resposta.ok) { form.reset(); await listar(); }
+      else erro.textContent = `${resposta.status}: ${await resposta.text()}`;
+    });
+
+    listar().catch((e) => { erro.textContent = String(e); });
+  </script>
+</body>
+</html>
