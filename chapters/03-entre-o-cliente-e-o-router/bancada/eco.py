@@ -2,8 +2,11 @@
 
 Sobe com (no lugar do FairFare, na 8000, para ficar atrás do proxy):
   uv run uvicorn eco:app --port 8000 --app-dir chapters/03-entre-o-cliente-e-o-router/bancada
+
+`/lento` demora 5s de propósito (lição 11).
 """
 
+import asyncio
 import json
 
 from asgi_cru import acompanhar_lifespan
@@ -13,6 +16,9 @@ async def app(scope, receive, send) -> None:
     if scope["type"] == "lifespan":
         await acompanhar_lifespan(receive, send)
         return
+
+    if scope["path"] == "/lento":
+        await asyncio.sleep(5)  # uma request em voo, para a demonstração de shutdown gracioso
 
     # Duas ressalvas de espelho: headers do HTTP são latin-1, e este dict guarda a ÚLTIMA
     # ocorrência de um header repetido — o uvicorn junta todos os x-forwarded-for com ", ".

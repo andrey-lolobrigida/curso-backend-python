@@ -22,7 +22,7 @@ Regras da bancada:
 | `proxy.py` | Um proxy reverso em cinquenta linhas: repassa `/api/...` para o FairFare e serve a página como estático, imprimindo tudo o que atravessa | 06 |
 | `Caddyfile` | A mesma configuração do `proxy.py`, escrita para o Caddy. **Lido, nunca executado** | 07 |
 | `nginx.conf` | A mesma configuração do `proxy.py`, escrita para o nginx. **Lido, nunca executado** | 07 |
-| `eco.py` | Um espelho: devolve em JSON quem o servidor **acha** que é o cliente, por qual esquema a request chegou e os `X-Forwarded-*` que ele recebeu | 08 |
+| `eco.py` | Um espelho: devolve em JSON quem o servidor **acha** que é o cliente, por qual esquema a request chegou e os `X-Forwarded-*` que ele recebeu. A lição 11 acrescenta a ele um `/lento`, que dorme 5s | 08 |
 | `certificado.py` | Gera uma chave privada e um certificado autoassinado para `localhost`, em `certs/` — pasta **gitignorada** | 09 |
 
 *(A tabela cresce junto com o capítulo.)*
@@ -175,3 +175,34 @@ curl -s --cacert $B/certs/cert.pem https://localhost:8443/api/
 
 O espelho responde `"esquema": "https"` mesmo tendo recebido uma conexão sem TLS nenhuma — é o
 `X-Forwarded-Proto` da lição 08 chegando com um valor de verdade pela primeira vez.
+
+O FairFare com vários processos, da lição 11 — a mesma carga da lição 02, contra um app que agora
+tem quatro baldes de rate limit em vez de um:
+
+```bash
+uv run uvicorn app.main:app --port 8000 --workers 4
+```
+
+```bash
+C=chapters/03-entre-o-cliente-e-o-router/bancada/carga.py
+uv run python $C http://localhost:8000/users 100
+```
+
+Nunca junte `--workers` com `--reload`: o uvicorn ignora o primeiro e avisa numa linha só, no meio
+da subida. E o `--workers` é o comando da bancada que deixa **vários workers** de pé — na
+hora de matar, confira que a 8000 ficou livre antes de subir o próximo aparelho.
+
+O shutdown gracioso, também da lição 11, precisa de duas abas e de um Ctrl+C bem cronometrado:
+
+```bash
+B=chapters/03-entre-o-cliente-e-o-router/bancada
+uv run uvicorn eco:app --port 8000 --app-dir $B
+```
+
+```bash
+curl -s -w '\ncurl terminou com %{http_code} em %{time_total}s\n' localhost:8000/lento
+```
+
+Dê Ctrl+C no servidor **enquanto** o `curl` espera: ele termina com `200`, e só então o servidor
+morre. Suba o mesmo comando com `--timeout-graceful-shutdown 1` e repita: agora o `curl` termina
+com `500`. A lição 11 explica por que é um `500`, e não uma conexão cortada.
