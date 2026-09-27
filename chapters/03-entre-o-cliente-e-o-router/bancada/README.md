@@ -22,6 +22,7 @@ Regras da bancada:
 | `proxy.py` | Um proxy reverso em cinquenta linhas: repassa `/api/...` para o FairFare e serve a página como estático, imprimindo tudo o que atravessa | 06 |
 | `Caddyfile` | A mesma configuração do `proxy.py`, escrita para o Caddy. **Lido, nunca executado** | 07 |
 | `nginx.conf` | A mesma configuração do `proxy.py`, escrita para o nginx. **Lido, nunca executado** | 07 |
+| `eco.py` | Um espelho: devolve em JSON quem o servidor **acha** que é o cliente, por qual esquema a request chegou e os `X-Forwarded-*` que ele recebeu | 08 |
 
 *(A tabela cresce junto com o capítulo.)*
 
@@ -88,10 +89,33 @@ uv run uvicorn app.main:app --port 8000
 Na segunda aba, o proxy reverso da lição 06 — que serve a página **e** repassa `/api/...` para o FairFare:
 
 ```bash
-uv run uvicorn proxy:app --port 8080 --app-dir chapters/03-entre-o-cliente-e-o-router/bancada
+uv run uvicorn proxy:app --port 8080 --no-proxy-headers \
+    --app-dir chapters/03-entre-o-cliente-e-o-router/bancada
 ```
 
+O `--no-proxy-headers` entrou na lição 08 e não é enfeite: sem ele, o uvicorn que serve o
+proxy acredita no `X-Forwarded-For` que o cliente mandar, e o proxy repassa a mentira adiante.
+Quem está na borda não acredita em ninguém. (As lições 06 e 07 sobem o proxy sem a flag, porque
+lá o assunto ainda não existia.)
+
 Abra `http://localhost:8080` **com o console do browser aberto**. Leia também o terminal do proxy: ele imprime toda request que atravessa, corpo incluído. Para bater só na API, sem browser: `curl -s localhost:8080/api/users`.
+
+O espelho da lição 08, que troca de lugar com o FairFare para mostrar o que o servidor
+acha que sabe sobre o cliente — ele fica na 8000, com o proxy na 8080 na frente:
+
+```bash
+uv run uvicorn eco:app --port 8000 --app-dir chapters/03-entre-o-cliente-e-o-router/bancada
+```
+
+```bash
+curl -s localhost:8080/api/
+curl -s -H 'X-Forwarded-For: 8.8.8.8' localhost:8080/api/
+```
+
+O segundo comando é o ponto da lição 08. Com o proxy subido do jeito acima — **com**
+`--no-proxy-headers` — o espelho responde `"cliente": ["127.0.0.1", 0]` nos dois casos: o header
+inventado morre na borda. Tire a flag, suba o proxy de novo e repita o segundo comando: agora o
+espelho responde `"cliente": ["8.8.8.8", 0]`. É a diferença inteira, em um `curl`.
 
 **Para refazer a lição 04**, que é o arranjo anterior — página numa origem, API em outra —, troque as duas coisas juntas: a segunda aba vira
 

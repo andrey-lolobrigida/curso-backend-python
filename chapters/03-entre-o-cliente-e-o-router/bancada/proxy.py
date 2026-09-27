@@ -6,8 +6,12 @@ Todo o resto é a página em pagina/, servida como arquivo estático.
 Imprime cada request que atravessa — inclusive o corpo. Isso é DE PROPÓSITO:
 quem está no meio lê tudo, e a lição 09 é sobre isso.
 
+O --no-proxy-headers é obrigatório e a lição 08 explica: sem ele, o uvicorn deste
+proxy acredita no X-Forwarded-For que o cliente mandar, e o proxy repassa a mentira.
+
 Sobe com:
-  uv run uvicorn proxy:app --port 8080 --app-dir chapters/03-entre-o-cliente-e-o-router/bancada
+  uv run uvicorn proxy:app --port 8080 --no-proxy-headers \
+      --app-dir chapters/03-entre-o-cliente-e-o-router/bancada
 """
 
 from pathlib import Path
@@ -29,12 +33,17 @@ upstream = httpx2.AsyncClient(base_url=UPSTREAM, timeout=30)
 
 
 def headers_para_o_upstream(request: Request) -> dict[str, str]:
-    # "host" sai: o httpx põe o do upstream. O resto passa como veio.
-    return {
+    # "host" sai: o httpx põe o do upstream. O resto passa como veio...
+    headers = {
         nome: valor
         for nome, valor in request.headers.items()
         if nome.lower() not in HOP_BY_HOP and nome.lower() != "host"
     }
+    # ...menos estes dois, que o proxy SOBRESCREVE. Quem está na frente é quem sabe
+    # quem conectou e por qual esquema; o que veio de fora nesses headers é palavra de estranho.
+    headers["x-forwarded-for"] = request.client.host
+    headers["x-forwarded-proto"] = request.url.scheme
+    return headers
 
 
 async def repassar(request: Request) -> Response:

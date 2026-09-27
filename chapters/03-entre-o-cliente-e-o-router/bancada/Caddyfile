@@ -4,6 +4,8 @@
 localhost:8080 {
     # ESCUTAR: o bloco acima. REPASSAR: /api/* vai para o FairFare, sem o prefixo.
     handle_path /api/* {
+        # Nenhum X-Forwarded-* aqui, de propósito: o reverse_proxy já os manda, e por padrão
+        # IGNORA os que vierem de fora (o trusted_proxies começa vazio). Lição 08.
         reverse_proxy 127.0.0.1:8000
     }
 
