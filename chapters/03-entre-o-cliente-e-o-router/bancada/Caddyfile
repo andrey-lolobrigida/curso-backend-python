@@ -1,0 +1,15 @@
+# Equivalente ao proxy.py, para o Caddy. Lido como texto neste curso — não é executado.
+# (Se você rodar, o Caddy ainda gera certificado TLS sozinho para localhost. Lição 10.)
+
+localhost:8080 {
+    # ESCUTAR: o bloco acima. REPASSAR: /api/* vai para o FairFare, sem o prefixo.
+    handle_path /api/* {
+        reverse_proxy 127.0.0.1:8000
+    }
+
+    # SERVIR ESTÁTICO: tudo o mais é a página.
+    handle {
+        root * pagina
+        file_server
+    }
+}

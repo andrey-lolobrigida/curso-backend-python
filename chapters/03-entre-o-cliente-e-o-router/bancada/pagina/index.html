@@ -17,9 +17,9 @@
   <pre id="erro"></pre>
 
   <script>
-    // Lição 04: a página mora em http://localhost:8080 e a API em http://localhost:8000.
-    // Origens diferentes — e é disso que a lição trata.
-    const API = "http://localhost:8000";
+    // Lição 07: a página e a API saem do MESMO lugar (o proxy, na 8080).
+    // Mesma origem — o browser não tem do que reclamar.
+    const API = "/api";
 
     const lista = document.getElementById("lista");
     const erro = document.getElementById("erro");
@@ -38,7 +38,8 @@
     form.addEventListener("submit", async (evento) => {
       evento.preventDefault();
       const dados = Object.fromEntries(new FormData(form));
-      // JSON no corpo => o browser manda um preflight (OPTIONS) antes do POST.
+      // JSON no corpo: para OUTRA origem (lição 04) isso dispara um preflight (OPTIONS).
+      // Para a mesma origem (lição 07), não dispara nada.
       const resposta = await fetch(`${API}/users`, {
         method: "POST",
         headers: { "content-type": "application/json" },

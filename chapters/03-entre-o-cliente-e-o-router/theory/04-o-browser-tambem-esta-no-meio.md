@@ -34,6 +34,11 @@ async function listar() {
 
 Nada de exótico. É a mesma request que você faz com `curl` desde o capítulo 1.
 
+> **Um aviso antes de rodar.** Na branch inteira do capítulo essa constante já está como `const API = "/api"` —
+> a lição 07 aponta a página para o proxy reverso. Se você fez `git checkout v-cap03-licao04`, ela está certa
+> e só falta o passo do middleware, logo abaixo. Se está no fim da branch, troque a constante de volta para `"http://localhost:8000"`
+> em `bancada/pagina/index.html`. Sem isso o `fetch` toma 404 do `http.server` em vez de esbarrar no CORS.
+
 Mais um passo antes de abrir. O `app/main.py` que você tem já traz o conserto que esta lição vai escrever — ele é o commit dela. Para ver o problema antes da solução, comente o bloco do `app.add_middleware(CORSMiddleware, ...)` no `app/main.py` e reinicie o FairFare. Na seção "O commit", lá embaixo, você descomenta.
 
 Abra `http://localhost:8080` com o console aberto. A lista vem **vazia**. E o console tem isto:
