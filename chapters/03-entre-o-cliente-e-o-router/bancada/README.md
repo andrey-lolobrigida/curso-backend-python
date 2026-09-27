@@ -155,3 +155,23 @@ curl -s --cacert $B/certs/cert.pem https://localhost:8443/users  # passa
 O `--cacert` é a forma honesta de aceitar um certificado de desenvolvimento: você **diz** em quem
 confia, e a verificação continua ligada. O `-k`, que aceita qualquer certificado, é a forma
 desonesta. A lição 10 explica a diferença.
+
+E o arranjo de produção — TLS terminando na borda, o app em texto puro atrás dela — são as três
+abas de sempre, com o proxy na 8443 (mate antes o que estiver na 8000 e na 8443, e deixe o `B`
+definido em cada aba):
+
+```bash
+uv run uvicorn eco:app --port 8000 --app-dir $B
+```
+
+```bash
+uv run uvicorn proxy:app --port 8443 --no-proxy-headers \
+    --ssl-keyfile $B/certs/chave.pem --ssl-certfile $B/certs/cert.pem --app-dir $B
+```
+
+```bash
+curl -s --cacert $B/certs/cert.pem https://localhost:8443/api/
+```
+
+O espelho responde `"esquema": "https"` mesmo tendo recebido uma conexão sem TLS nenhuma — é o
+`X-Forwarded-Proto` da lição 08 chegando com um valor de verdade pela primeira vez.
