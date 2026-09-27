@@ -102,7 +102,7 @@ $ ping -c 5 1.1.1.1 | tail -1
 rtt min/avg/max/mdev = 5.652/5.889/6.209/0.182 ms
 ```
 
-Cem vezes mais caro. E o `1.1.1.1` ainda é um destino **perto** — um servidor do outro lado de um oceano cobra bem mais que isso; rode o `ping` contra um e veja. É essa ida e volta que o keep-alive economiza a cada request, e nenhum truque de código a encurta. Com TLS por cima (lição 09), são duas idas e voltas antes do primeiro byte de HTTP. É a mesma fatura, cobrada duas vezes.
+Cem vezes mais caro. E o `1.1.1.1` ainda é um destino **perto** — um servidor do outro lado de um oceano cobra bem mais que isso; rode o `ping` contra um e veja. É essa ida e volta que o keep-alive economiza a cada request, e nenhum truque de código a encurta. Com TLS por cima (lição 09), são duas idas e voltas antes do primeiro byte de HTTP — a do TCP mais a do TLS. É a mesma fatura, cobrada duas vezes. *(Duas é a conta do TLS 1.3, que é o que o `curl` e o uvicorn desta máquina negociam sozinhos; com o TLS 1.2 são três. A lição 09 mostra os dois handshakes lado a lado.)*
 
 ### Conexão aberta não é conexão eterna
 

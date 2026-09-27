@@ -23,6 +23,7 @@ Regras da bancada:
 | `Caddyfile` | A mesma configuração do `proxy.py`, escrita para o Caddy. **Lido, nunca executado** | 07 |
 | `nginx.conf` | A mesma configuração do `proxy.py`, escrita para o nginx. **Lido, nunca executado** | 07 |
 | `eco.py` | Um espelho: devolve em JSON quem o servidor **acha** que é o cliente, por qual esquema a request chegou e os `X-Forwarded-*` que ele recebeu | 08 |
+| `certificado.py` | Gera uma chave privada e um certificado autoassinado para `localhost`, em `certs/` — pasta **gitignorada** | 09 |
 
 *(A tabela cresce junto com o capítulo.)*
 
@@ -34,7 +35,7 @@ O capítulo inteiro respeita este mapa. Quando uma lição pedir duas ou três a
 |---|---|
 | 8000 | O FairFare (ou um servidor da bancada no lugar dele) |
 | 8080 | A página estática / o proxy reverso |
-| 8443 | O proxy reverso com TLS |
+| 8443 | Qualquer servidor com TLS: o proxy reverso terminando TLS, ou o FairFare direto (lição 10) |
 
 Se uma porta estiver ocupada, o uvicorn morre na subida com um erro claro (`address already in use`). Mate o servidor da aba anterior antes de subir o próximo.
 
@@ -124,3 +125,33 @@ python3 -m http.server 8080 --directory chapters/03-entre-o-cliente-e-o-router/b
 ```
 
 e em `pagina/index.html` a constante volta a ser `const API = "http://localhost:8000"`. As duas mudanças andam em par: com o `http.server`, `/api` não existe e o `fetch` toma 404 em vez de esbarrar no CORS. E tem uma terceira, sem a qual não há cena: o `app/main.py` de hoje já traz o conserto da lição 04, então comente o bloco do `CORSMiddleware` e reinicie o FairFare. Descomente quando terminar.
+
+O certificado da lição 10, gerado como palco já na 09, é o único aparelho que **gera arquivo**:
+
+```bash
+uv run python chapters/03-entre-o-cliente-e-o-router/bancada/certificado.py
+```
+
+Ele escreve `bancada/certs/chave.pem` e `bancada/certs/cert.pem`. Essa pasta está no `.gitignore`
+do repositório e tem que continuar lá: `chave.pem` é uma chave privada, e chave privada commitada
+é chave privada publicada. Gere a sua; ela vale trinta dias e é só sua. A dependência
+`cryptography` que o script usa entrou como **dev** (`uv add --dev cryptography`) — o FairFare não
+importa nada dela.
+
+Com o certificado na mão, qualquer servidor da bancada sobe com TLS. O FairFare direto, na 8443:
+
+```bash
+B=chapters/03-entre-o-cliente-e-o-router/bancada
+uv run uvicorn app.main:app --port 8443 \
+    --ssl-keyfile $B/certs/chave.pem --ssl-certfile $B/certs/cert.pem
+```
+
+```bash
+B=chapters/03-entre-o-cliente-e-o-router/bancada                 # nesta aba também
+curl -s https://localhost:8443/users                             # falha: código 60
+curl -s --cacert $B/certs/cert.pem https://localhost:8443/users  # passa
+```
+
+O `--cacert` é a forma honesta de aceitar um certificado de desenvolvimento: você **diz** em quem
+confia, e a verificação continua ligada. O `-k`, que aceita qualquer certificado, é a forma
+desonesta. A lição 10 explica a diferença.
