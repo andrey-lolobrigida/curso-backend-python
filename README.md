@@ -48,10 +48,11 @@ Escritos até agora:
 | 1 | [Arquitetura em camadas](chapters/01-arquitetura-em-camadas/README.md) | Routers, services, repositories, models, schemas, migrações e testes |
 | 2 | [Python assíncrono](chapters/02-python-assincrono/README.md) | Event loop, bloqueio, o GIL, pool de conexões — e como medir tudo isso |
 | 3 | [Entre o cliente e o router](chapters/03-entre-o-cliente-e-o-router/README.md) | O que o uvicorn faz, middleware, CORS, rate limiting, proxy reverso, TLS, workers |
+| 4 | [O banco de dados, de verdade](chapters/04-o-banco-de-dados-de-verdade/README.md) | PostgreSQL, pool de conexões, índices e EXPLAIN, transações, isolamento, locking, e a regra que mora no banco |
 
 ## A stack
 
-Python 3.12+, FastAPI, Pydantic, SQLAlchemy, Alembic, PostgreSQL, pytest — com Redis, uma fila de tarefas e Docker entrando quando o curso os merecer. Por que FastAPI e não Django ou Flask? Essa comparação é, por si só, [uma lição](chapters/01-arquitetura-em-camadas/theory/02-por-que-fastapi.md).
+Python 3.12+, FastAPI, Pydantic, SQLAlchemy, Alembic, PostgreSQL, pytest — com o Docker desde o capítulo 4 (só para o banco, por enquanto), e Redis e uma fila de tarefas entrando quando o curso os merecer. Por que FastAPI e não Django ou Flask? Essa comparação é, por si só, [uma lição](chapters/01-arquitetura-em-camadas/theory/02-por-que-fastapi.md).
 
 ## Arco do curso
 

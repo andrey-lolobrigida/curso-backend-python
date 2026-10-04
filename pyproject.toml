@@ -3,16 +3,18 @@ name = "python-backend-course"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
-    "aiosqlite>=0.22.1",
     "alembic>=1.18.5",
+    "asyncpg>=0.31.0",
     "email-validator>=2.3.0",
     "fastapi>=0.139.0",
+    "psycopg[binary]>=3.3.6",
     "sqlalchemy>=2.0.51",
     "uvicorn>=0.51.0",
 ]
 
 [dependency-groups]
 dev = [
+    "aiosqlite>=0.22.1",
     "cryptography>=50.0.1",
     "httpx2>=2.7.0",
     "pytest>=9.1.1",

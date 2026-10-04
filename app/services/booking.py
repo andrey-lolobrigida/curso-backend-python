@@ -1,9 +1,14 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Booking
-from app.repositories import BookingRepository, ResourceRepository, UserRepository
+from app.repositories import (
+    BookingOverlapError,
+    BookingRepository,
+    ResourceRepository,
+    UserRepository,
+)
 from app.schemas import BookingCreate, BookingOut
 
 
@@ -39,16 +44,21 @@ class BookingService:
         )
         if overlapping:
             raise BookingConflictError
-        booking = await self.bookings.create(
-            data.user_id, data.resource_id, data.starts_at, data.ends_at
-        )
+        try:
+            booking = await self.bookings.create(
+                data.user_id, data.resource_id, data.starts_at, data.ends_at
+            )
+        except BookingOverlapError:
+            # A verificação acima é o caminho rápido e educado; a garantia é do banco.
+            # Quem perdeu a corrida passou pela verificação e foi barrado aqui.
+            raise BookingConflictError
         return await self._to_out(booking)
 
     async def cancel(self, booking_id: int) -> None:
         booking = await self.bookings.get(booking_id)
         if booking is None:
             raise BookingNotFoundError
-        if booking.starts_at <= datetime.now():
+        if booking.starts_at <= datetime.now(UTC):
             raise BookingInPastError
         await self.bookings.delete(booking)
 
