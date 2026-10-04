@@ -37,6 +37,8 @@ def banco_de_testes():
 
     engine = create_engine(SYNC_TEST_URL)
     with engine.begin() as conn:
+        # A constraint de não-sobreposição (lição 11) precisa da extensão btree_gist.
+        conn.execute(text("CREATE EXTENSION IF NOT EXISTS btree_gist"))
         # Do zero a cada rodada: se um model mudou, o banco de testes muda junto.
         Base.metadata.drop_all(conn)
         Base.metadata.create_all(conn)

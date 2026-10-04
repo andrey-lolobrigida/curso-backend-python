@@ -1,6 +1,7 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Index
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, column, func
+from sqlalchemy.dialects.postgresql import ExcludeConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
@@ -9,8 +10,17 @@ from app.database import Base
 class Booking(Base):
     __tablename__ = "bookings"
     __table_args__ = (
-        # find_overlapping roda em toda reserva: filtra por recurso, depois por horário (lição 06).
-        Index("ix_bookings_resource_id_starts_at", "resource_id", "starts_at"),
+        # "Um recurso não tem duas reservas no mesmo horário" — regra do banco, não do código
+        # (lição 11). O autogenerate do Alembic não enxerga isto: a migração foi escrita à mão.
+        ExcludeConstraint(
+            ("resource_id", "="),
+            (func.tstzrange(column("starts_at"), column("ends_at")), "&&"),
+            name="bookings_sem_sobreposicao",
+            using="gist",
+        ),
+        # Sem isto, uma reserva de duração zero vira um intervalo vazio, que não sobrepõe
+        # nada, e escapa da regra de cima (lição 11).
+        CheckConstraint("ends_at > starts_at", name="bookings_fim_depois_do_inicio"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
