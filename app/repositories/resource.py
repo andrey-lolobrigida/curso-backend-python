@@ -21,3 +21,8 @@ class ResourceRepository:
     async def list_all(self) -> list[Resource]:
         resultado = await self.db.scalars(select(Resource))
         return list(resultado)
+
+    async def get_for_update(self, resource_id: int) -> Resource | None:
+        """Busca o recurso e tranca a linha até o fim da transação (lição 10)."""
+        stmt = select(Resource).where(Resource.id == resource_id).with_for_update()
+        return await self.db.scalar(stmt)

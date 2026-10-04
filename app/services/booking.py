@@ -31,7 +31,9 @@ class BookingService:
 
     async def create(self, data: BookingCreate) -> BookingOut:
         user = await self.users.get(data.user_id)
-        resource = await self.resources.get(data.resource_id)
+        # Tranca o recurso: quem chegar depois espera aqui até o commit do create
+        # (ou o rollback, se der conflito). Não dá para trancar a reserva: ela ainda não existe.
+        resource = await self.resources.get_for_update(data.resource_id)
         if user is None or resource is None:
             raise RelatedNotFoundError
         overlapping = await self.bookings.find_overlapping(
