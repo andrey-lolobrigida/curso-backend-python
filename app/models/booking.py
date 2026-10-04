@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey
+from sqlalchemy import DateTime, ForeignKey, Index
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
@@ -8,6 +8,10 @@ from app.database import Base
 
 class Booking(Base):
     __tablename__ = "bookings"
+    __table_args__ = (
+        # find_overlapping roda em toda reserva: filtra por recurso, depois por horário (lição 06).
+        Index("ix_bookings_resource_id_starts_at", "resource_id", "starts_at"),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))

@@ -6,3 +6,5 @@ Todos falam com o PostgreSQL do `compose.yaml`: suba antes com `docker compose u
 | Script | Lição | O que mostra |
 |---|---|---|
 | `pool.py` | 05 | o pool do app estourando (`pool`) e a soma dos pools estourando o servidor (`servidor`) |
+| `seed.sql` | 06 | um milhão de reservas com `generate_series`, sem sobreposição (~20 s nesta máquina; **apaga** os dados do banco de dev) |
+| `explain.sql` | 06 | o plano da consulta do `find_overlapping` |
