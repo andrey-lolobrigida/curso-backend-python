@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -48,7 +48,7 @@ class BookingService:
         booking = await self.bookings.get(booking_id)
         if booking is None:
             raise BookingNotFoundError
-        if booking.starts_at <= datetime.now():
+        if booking.starts_at <= datetime.now(UTC):
             raise BookingInPastError
         await self.bookings.delete(booking)
 
