@@ -3,10 +3,10 @@ from collections.abc import AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 
-DATABASE_URL = "sqlite+aiosqlite:///fairfare.db"
-
-# O Alembic continua síncrono, e por isso precisa da sua própria URL. A lição 08 explica.
-SYNC_DATABASE_URL = "sqlite:///fairfare.db"
+# O mesmo servidor, dois drivers: asyncpg para o app (async até o osso) e psycopg para
+# o Alembic, que continua síncrono. É a promessa da lição 08 do capítulo 2.
+DATABASE_URL = "postgresql+asyncpg://fairfare:fairfare@localhost:5432/fairfare"
+SYNC_DATABASE_URL = "postgresql+psycopg://fairfare:fairfare@localhost:5432/fairfare"
 
 engine = create_async_engine(
     DATABASE_URL,
