@@ -58,10 +58,10 @@ Note o que o balde **não** guarda: um histórico de requests. Nada de lista de 
 Middleware ASGI puro. Não sabe que o FairFare existe — só conhece scope, receive, send.
 
 Limitações declaradas (lição 12 do capítulo 3):
-- o dicionário de baldes vive neste processo; com vários workers, cada um tem o seu (cap. 6);
+- o dicionário de baldes vive neste processo; com vários workers, cada um tem o seu (cap. 7);
 - a chave é scope["client"], que atrás de um proxy é o que o servidor confiou (lição 08);
 - o dicionário nunca esquece um cliente: cada IP novo vira uma entrada permanente, e quem
-  decide quantos IPs aparecem é o próprio tráfego que o limitador deveria conter (cap. 6, via TTL).
+  decide quantos IPs aparecem é o próprio tráfego que o limitador deveria conter (cap. 7, via TTL).
 """
 
 import math
@@ -165,7 +165,7 @@ async def test_avancar_o_relogio_libera():
         assert (await c.get("/")).status_code == 200
 ```
 
-Um segundo de tempo simulado, zero segundo de tempo real. (Essa ideia volta no capítulo 7, quando tarefas em segundo plano precisarem de "daqui a cinco minutos" sem esperar cinco minutos.)
+Um segundo de tempo simulado, zero segundo de tempo real. (Essa ideia volta no capítulo 8, quando tarefas em segundo plano precisarem de "daqui a cinco minutos" sem esperar cinco minutos.)
 
 E tem outra coisa aí, que vale dizer em voz alta: **o rate limiter não sabe que o FairFare existe.** Ele não importa router, não importa modelo, não toca no banco. É um app ASGI que embrulha outro app ASGI — e por isso o teste embrulha um app de brinquedo de quatro linhas:
 
@@ -262,7 +262,7 @@ FAILED tests/test_smoke.py::test_email_invalido_e_422 - assert 429 == 422
 
 Treze testes. O `test_smoke.py` inteiro, do capítulo 1, quebrado por um middleware que ele nem sabe que existe — e quebrado com a mensagem mais desnorteante possível: `assert 429 == 201`.
 
-Essa cena é um ensaio. Estado guardado em memória de processo é confortável e traiçoeiro: funciona sozinho, some quando o processo reinicia, e não existe para o processo vizinho. Com dois workers de uvicorn, são dois baldes — e o cliente ganha **até** o dobro do limite. E o dicionário nunca esquece um IP: cada cliente novo vira uma entrada permanente, e quem decide quantos IPs aparecem é justamente o tráfego que o limitador deveria conter. São duas limitações declaradas deste código, escritas no topo do módulo, e o capítulo 6 resolve as duas tirando o balde da memória e colocando no Redis — onde cada entrada carrega um TTL e expira sozinha.
+Essa cena é um ensaio. Estado guardado em memória de processo é confortável e traiçoeiro: funciona sozinho, some quando o processo reinicia, e não existe para o processo vizinho. Com dois workers de uvicorn, são dois baldes — e o cliente ganha **até** o dobro do limite. E o dicionário nunca esquece um IP: cada cliente novo vira uma entrada permanente, e quem decide quantos IPs aparecem é justamente o tráfego que o limitador deveria conter. São duas limitações declaradas deste código, escritas no topo do módulo, e o capítulo 7 resolve as duas tirando o balde da memória e colocando no Redis — onde cada entrada carrega um TTL e expira sozinha.
 
 ## A medição depois
 

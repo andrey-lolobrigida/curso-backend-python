@@ -99,7 +99,7 @@ Você terá um backend em camadas, com migrações, testes e uma regra de negóc
 O FairFare chega ao fim deste capítulo com três limitações conhecidas. Elas continuam aí de propósito: consertar qualquer uma exigiria conceitos que o curso ainda não ensinou. Nenhuma delas é pegadinha — são dívidas com data de vencimento marcada.
 
 - **Duas pessoas podem reservar o mesmo horário.** `BookingService.create` verifica o conflito e só depois insere; duas requests simultâneas passam as duas pela verificação. → **capítulo 4**
-- **Listar reservas faz 2N+1 consultas.** Cada reserva na lista busca usuário e recurso separadamente (o problema N+1). → **capítulo 4**
-- **Não existe autenticação.** `POST /bookings` aceita qualquer `user_id`, então qualquer pessoa reserva no nome de qualquer outra. → **capítulo 5**
+- **Listar reservas faz 2N+1 consultas.** Cada reserva na lista busca usuário e recurso separadamente (o problema N+1). → **capítulo 5**
+- **Não existe autenticação.** `POST /bookings` aceita qualquer `user_id`, então qualquer pessoa reserva no nome de qualquer outra. → **capítulo 6**
 
 A versão longa, com o mecanismo de cada uma, está na [lição 11 do capítulo 2](../02-python-assincrono/theory/11-o-que-ainda-nao-resolve.md). O histórico de por que isso não estava escrito aqui desde o começo está na [ERRATA](../../ERRATA.md).

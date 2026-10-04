@@ -53,7 +53,7 @@ Duas mudanças, porque havia **dois** problemas de naturezas diferentes:
 
 **A lição de método está aqui, e ela vale mais que o conserto.** Se você trocou só o `time.sleep` e rodou o teste, ele continuou vermelho — e a conclusão tentadora é "meu conserto estava errado". Não estava. Havia dois problemas empilhados, e cada conserto certo revelou o próximo. É o mesmo padrão do capítulo 0: consertar-observar-consertar, e cada erro que muda de forma é progresso.
 
-Uma honestidade sobre o `to_thread` aqui, que a lição 10 já tinha adiantado: ele resolve o **bloqueio do loop**, não o GIL. As cinco requests continuam disputando a mesma trava para calcular, e por isso a versão consertada leva ~0,8s e não ~0,3s. O que a gente comprou foi que o servidor **inteiro** deixou de congelar — as outras rotas voltaram a responder. Se esse cálculo fosse pesado de verdade, a resposta certa não seria thread nenhuma: seria outro processo, ou uma fila (capítulo 7).
+Uma honestidade sobre o `to_thread` aqui, que a lição 10 já tinha adiantado: ele resolve o **bloqueio do loop**, não o GIL. As cinco requests continuam disputando a mesma trava para calcular, e por isso a versão consertada leva ~0,8s e não ~0,3s. O que a gente comprou foi que o servidor **inteiro** deixou de congelar — as outras rotas voltaram a responder. Se esse cálculo fosse pesado de verdade, a resposta certa não seria thread nenhuma: seria outro processo, ou uma fila (capítulo 8).
 
 ---
 
@@ -132,7 +132,7 @@ Espera alguém: **não**. É CPU pura. Mas ela trava o loop por um segundo intei
 
 `asyncio.to_thread` tira o cálculo da thread do loop. O servidor volta a responder enquanto a conta acontece.
 
-E a honestidade obrigatória, pela terceira vez neste capítulo: **isso resolve o bloqueio, não resolve o GIL.** O cálculo continua disputando a trava com o resto do processo, e um segundo de CPU continua custando um segundo de CPU. Se fosse pesado de verdade e frequente, a resposta certa seria outro processo (`ProcessPoolExecutor`) ou tirá-lo do caminho da request e mandá-lo para uma fila de tarefas — capítulo 7. `to_thread` aqui é a válvula, e ela está sendo usada com consciência do preço.
+E a honestidade obrigatória, pela terceira vez neste capítulo: **isso resolve o bloqueio, não resolve o GIL.** O cálculo continua disputando a trava com o resto do processo, e um segundo de CPU continua custando um segundo de CPU. Se fosse pesado de verdade e frequente, a resposta certa seria outro processo (`ProcessPoolExecutor`) ou tirá-lo do caminho da request e mandá-lo para uma fila de tarefas — capítulo 8. `to_thread` aqui é a válvula, e ela está sendo usada com consciência do preço.
 
 ### `carregar_config` — **deixa de ser async**
 

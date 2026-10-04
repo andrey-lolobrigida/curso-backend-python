@@ -3,10 +3,10 @@
 Middleware ASGI puro. Não sabe que o FairFare existe — só conhece scope, receive, send.
 
 Limitações declaradas (lição 12 do capítulo 3):
-- o dicionário de baldes vive neste processo; com vários workers, cada um tem o seu (cap. 6);
+- o dicionário de baldes vive neste processo; com vários workers, cada um tem o seu (cap. 7);
 - a chave é scope["client"], que atrás de um proxy é o que o servidor confiou (lição 08);
 - o dicionário nunca esquece um cliente: cada IP novo vira uma entrada permanente, e quem
-  decide quantos IPs aparecem é o próprio tráfego que o limitador deveria conter (cap. 6, via TTL).
+  decide quantos IPs aparecem é o próprio tráfego que o limitador deveria conter (cap. 7, via TTL).
 """
 
 import math

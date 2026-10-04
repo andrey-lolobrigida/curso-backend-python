@@ -15,6 +15,8 @@ Formato de cada entrada:
 
 ---
 
+> **O arco foi renumerado em outubro de 2026.** O capítulo 4 planejado prometia coisas demais, e virou dois: 4 "O banco de dados, de verdade" (Postgres, pool, índices, transações, a reserva dupla) e 5 "Relações e dinheiro" (relações, N+1, `Decimal`, SQL puro). Todos os capítulos seguintes andaram uma casa: autenticação virou o 6, cache o 7, filas o 8, observabilidade o 9, testes o 10 e deploy o 11. A `main` já usa os números novos, inclusive nas entradas abaixo. **Se você está numa branch de `chapter-00` a `chapter-03`, as remissões usam a numeração antiga.** Lá, "capítulo 4" para N+1 ou dinheiro quer dizer 5, e qualquer capítulo de 5 em diante é o número seguinte.
+
 ## 1. O gancho do fim do capítulo 1 é falso
 
 - **Capítulo afetado:** 1 (`chapter-01`, tag `v-chapter-01`) — `chapters/01-arquitetura-em-camadas/README.md`, seção "Ao terminar".
@@ -30,8 +32,8 @@ Formato de cada entrada:
   | # | Onde | O quê | Resolvido no |
   |---|---|---|---|
   | 1 | `app/services/booking.py::BookingService.create` | Verifica conflito de horário e **depois** insere, sem transação nem lock. Duas requests simultâneas para o mesmo horário passam as duas pela verificação e gravam as duas (*check-then-act*). | capítulo 4 |
-  | 2 | `app/services/booking.py::_to_out` | Cada reserva listada busca usuário e recurso em consultas separadas: `GET /bookings` faz **2N+1** idas ao banco (problema N+1). | capítulo 4 |
-  | 3 | todas as rotas | Não existe autenticação. `POST /bookings` aceita qualquer `user_id`; qualquer pessoa reserva ou cancela no nome de qualquer outra. | capítulo 5 |
+  | 2 | `app/services/booking.py::_to_out` | Cada reserva listada busca usuário e recurso em consultas separadas: `GET /bookings` faz **2N+1** idas ao banco (problema N+1). | capítulo 5 |
+  | 3 | todas as rotas | Não existe autenticação. `POST /bookings` aceita qualquer `user_id`; qualquer pessoa reserva ou cancela no nome de qualquer outra. | capítulo 6 |
 
 - **Correção:** **o código não muda.** Consertar qualquer um dos três exigiria conceitos que o curso ainda não ensinou (transações, eager loading, autenticação) — e ensiná-los fora de hora é pior que declará-los. O que mudou é que agora eles estão escritos: aqui, numa seção nova do README do capítulo 1, e em detalhe na lição 11 do capítulo 2 (`chapters/02-python-assincrono/theory/11-o-que-ainda-nao-resolve.md`), com o mecanismo de cada um e o que o capítulo 2 mudou neles.
 

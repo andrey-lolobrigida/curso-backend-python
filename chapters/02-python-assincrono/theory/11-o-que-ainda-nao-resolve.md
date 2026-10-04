@@ -46,7 +46,7 @@ Esse é o **problema N+1**, o clássico dos ORMs: você escreve uma linha de có
 
 **Por que não consertamos agora:** a cura é carregar os dados relacionados junto, com `join` ou `selectinload`, e isso pressupõe `relationship()` entre os models — que o FairFare ainda não tem, e que traz junto o `MissingGreenlet` da lição 05.
 
-**Resolvido no:** capítulo 4.
+**Resolvido no:** capítulo 5.
 
 ## 3. Não existe autenticação nenhuma
 
@@ -62,7 +62,7 @@ Nada no app pergunta *quem está fazendo isso*. Qualquer pessoa reserva no nome 
 
 **Por que não consertamos agora:** autenticação é um capítulo inteiro — sessões contra tokens, onde guardar segredo, hashing de senha, permissões por grupo. Enfiar um "meio-jeito" agora produziria segurança de mentira, que é pior que nenhuma, porque parece resolvida.
 
-**Resolvido no:** capítulo 5.
+**Resolvido no:** capítulo 6.
 
 ## A regra que essas três seções ilustram
 

@@ -236,6 +236,6 @@ def cancel_booking(booking_id: int, db: Session = Depends(get_db)):
 
 (Não esqueça de reexportar as exceções novas em `app/services/__init__.py`.)
 
-**A moral.** O pastelão e a versão em camadas têm o **mesmo comportamento** — os testes provam. A diferença é o futuro: no pastelão, a regra "só futuras" era invisível para qualquer código que não fosse a rota (um job de limpeza do capítulo 7 teria que copiá-la); em camadas, `BookingService.cancel` é a regra, chamável de qualquer lugar. Você fez em 20 minutos, com rede, o que o capítulo inteiro fez em 11 lições: essa experiência — mover sem medo porque o verde vigia — é a habilidade que o curso quer instalar.
+**A moral.** O pastelão e a versão em camadas têm o **mesmo comportamento** — os testes provam. A diferença é o futuro: no pastelão, a regra "só futuras" era invisível para qualquer código que não fosse a rota (um job de limpeza do capítulo 8 teria que copiá-la); em camadas, `BookingService.cancel` é a regra, chamável de qualquer lugar. Você fez em 20 minutos, com rede, o que o capítulo inteiro fez em 11 lições: essa experiência — mover sem medo porque o verde vigia — é a habilidade que o curso quer instalar.
 
 *(Este exercício, ao contrário do bloco 2, **entra no app oficial** — o cancelamento é útil demais para ficar só na sua branch. Veja o commit seguinte do capítulo: é a solução acima, com os 3 testes incorporados ao smoke test.)*

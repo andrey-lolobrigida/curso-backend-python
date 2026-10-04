@@ -71,7 +71,7 @@ class BookingCreate(BaseModel):
 
 1. **Forma** → Pydantic, `422`. "Fim antes do início" parece regra de negócio, mas repare: decidir não exige olhar o banco — os dois valores estão na própria request. Validação de forma, mesmo quando esperta (o `@model_validator` compara campos entre si), mora na porta.
 2. **Estado do mundo** → service, `404`/`409`. "Horário ocupado" e "usuário existe" só se respondem consultando os dados. É por isso que essas checagens *não podem* morar no schema: a porta não tem banco.
-3. **Identidade** → ...ainda não existe. Honestidade total: hoje *qualquer um* cria reserva em nome de *qualquer* `user_id`. Mande `{"user_id": 1}` sendo você o usuário 7 e o FairFare obedece. "Quem pode fazer isso?" é o terceiro tipo de "não pode", e o capítulo 5 existe por causa dele.
+3. **Identidade** → ...ainda não existe. Honestidade total: hoje *qualquer um* cria reserva em nome de *qualquer* `user_id`. Mande `{"user_id": 1}` sendo você o usuário 7 e o FairFare obedece. "Quem pode fazer isso?" é o terceiro tipo de "não pode", e o capítulo 6 existe por causa dele.
 
 ## Exceções de domínio: o service grita em português
 
@@ -88,7 +88,7 @@ def create_booking(data: BookingCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=409, detail="o recurso já está reservado nesse horário")
 ```
 
-Por que o service não levanta `HTTPException` direto, já que daria menos código? Porque **a camada de dentro não pode conhecer a de fora**. O service fala a língua do domínio ("conflito de reserva"); quem fala HTTP é a borda. No capítulo 7, um *worker* de fila vai chamar esse mesmo service sem nenhum HTTP por perto — e `BookingConflictError` continuará fazendo sentido, enquanto um `HTTPException` seria um corpo estranho.
+Por que o service não levanta `HTTPException` direto, já que daria menos código? Porque **a camada de dentro não pode conhecer a de fora**. O service fala a língua do domínio ("conflito de reserva"); quem fala HTTP é a borda. No capítulo 8, um *worker* de fila vai chamar esse mesmo service sem nenhum HTTP por perto — e `BookingConflictError` continuará fazendo sentido, enquanto um `HTTPException` seria um corpo estranho.
 
 Dois detalhes do commit, de passagem: os schemas saíram do `main.py` para um `app/schemas.py` próprio (o service precisa deles, e o `main.py` está de dieta — a lição 10 termina o regime); e o `BookingOut` devolve `user_nome` e `resource_nome` prontos, para o cliente não ter que fazer três requests para exibir uma reserva.
 

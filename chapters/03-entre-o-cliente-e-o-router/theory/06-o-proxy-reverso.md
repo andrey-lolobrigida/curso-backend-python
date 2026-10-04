@@ -182,7 +182,7 @@ Ele é um instrumento de bancada, não um produto. As limitações são estas, t
 
 - **Não manda `X-Forwarded-*`.** O FairFare não tem como saber quem é o cliente de verdade nem se a conexão original era `https`. É a lição 08.
 - **`HOP_BY_HOP` é uma lista fixa, não a definição real.** O RFC 7230 diz que hop-by-hop é o que o header `Connection:` de cada request citar — um proxy correto lê esse valor e amplia a lista pedido a pedido. O nosso conjunto é fechado: um header citado dentro de `Connection:` mas ausente do `HOP_BY_HOP` atravessa sem querer, e faltam `proxy-authenticate`/`proxy-authorization`.
-- **Headers repetidos da resposta viram um só, com vírgula.** O `resposta.headers.items()` do httpx já entrega os repetidos fundidos com `, ` (é o `multi_items()` que os separa), e o proxy repassa assim. Inofensivo hoje, porque o FairFare não manda `set-cookie` — errado assim que o capítulo 5 trouxer login por cookie e este arquivo for reaproveitado.
+- **Headers repetidos da resposta viram um só, com vírgula.** O `resposta.headers.items()` do httpx já entrega os repetidos fundidos com `, ` (é o `multi_items()` que os separa), e o proxy repassa assim. Inofensivo hoje, porque o FairFare não manda `set-cookie` — errado assim que o capítulo 6 trouxer login por cookie e este arquivo for reaproveitado.
 - **Não faz TLS.** Escuta em `http`. A lição 10 sobe o mesmo arquivo com certificado, na 8443.
 - **Duplica `date` e `server`** na resposta, como você viu acima.
 - **Segura o corpo inteiro na memória** (`await request.body()` e `resposta.content`) em vez de repassar em streaming. Para um upload grande isso é ruim; para a bancada é o que torna o código legível.

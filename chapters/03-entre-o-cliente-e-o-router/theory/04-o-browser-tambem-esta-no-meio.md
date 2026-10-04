@@ -105,7 +105,7 @@ Duzentos, com o corpo. O `curl` recebeu tudo. Ele leu o mesmo que o browser leu 
 
 Porque **CORS é uma regra do cliente, não do servidor**. O servidor apenas anuncia o que permite. Quem obedece é quem quiser obedecer, e só os browsers obedecem.
 
-Guarde isto, porque é o mal-entendido mais comum do assunto: **CORS não protege a sua API. Ele protege o usuário do browser.** Um script em Python, um `curl` num terminal, um backend chamando o seu backend, o Postman — nenhum deles jamais viu um erro de CORS na vida. Se a sua API precisa decidir *quem* pode fazer *o quê*, isso é autenticação e autorização (capítulo 5). Se precisa segurar volume, é rate limiting (lição 05). CORS não é nenhum dos dois.
+Guarde isto, porque é o mal-entendido mais comum do assunto: **CORS não protege a sua API. Ele protege o usuário do browser.** Um script em Python, um `curl` num terminal, um backend chamando o seu backend, o Postman — nenhum deles jamais viu um erro de CORS na vida. Se a sua API precisa decidir *quem* pode fazer *o quê*, isso é autenticação e autorização (capítulo 6). Se precisa segurar volume, é rate limiting (lição 05). CORS não é nenhum dos dois.
 
 ## O preflight
 
@@ -173,7 +173,7 @@ Uma linha de configuração resolve os dois problemas. Em `app/main.py`:
  app = FastAPI(title="FairFare")
 
 +# A página da bancada mora em http://localhost:8080. Origem explícita: nada de "*".
-+# Content-Type já é permitido por padrão; quando a API pedir Authorization (cap. 5),
++# Content-Type já é permitido por padrão; quando a API pedir Authorization (cap. 6),
 +# ele entra em allow_headers.
 +app.add_middleware(
 +    CORSMiddleware,
@@ -202,7 +202,7 @@ access-control-allow-origin: http://localhost:8080
 Três coisas para ler aí:
 
 - Nenhuma rota `OPTIONS` foi criada. O `CORSMiddleware` é ASGI puro e, no preflight, **responde sozinho** — ele nem chama o app de dentro. Lembra a regra da lição 03? *Se você só quer olhar, o fácil serve; se precisa controlar, ASGI puro.* Responder no lugar do app é controlar. O seu router nunca soube que esse `OPTIONS` existiu.
-- O `access-control-allow-headers` lista `Content-Type` sem a gente ter pedido: o Starlette já permite os headers da lista segura por padrão. Por isso não há `allow_headers` na configuração. Quando o capítulo 5 trouxer `Authorization`, aí sim.
+- O `access-control-allow-headers` lista `Content-Type` sem a gente ter pedido: o Starlette já permite os headers da lista segura por padrão. Por isso não há `allow_headers` na configuração. Quando o capítulo 6 trouxer `Authorization`, aí sim.
 - O `access-control-max-age: 600` diz ao browser para guardar essa resposta por dez minutos. O preflight não se repete a cada `POST`.
 
 E a página, recarregada: a lista aparece, o formulário cria usuário. No log:
@@ -250,7 +250,7 @@ async def test_origem_desconhecida_nao_ganha_header_nenhum(client):
     assert "access-control-allow-origin" not in resp.headers  # ...e o browser vai esconder
 ```
 
-O app **responde 200 com o corpo inteiro** para o malandro. Não é bug, é a mecânica: o servidor não recusa ninguém por causa de CORS, ele só deixa de carimbar. Quem esconde é o browser da vítima. (Se você quer *recusar*, é outra camada: a lição 05, para volume, ou o capítulo 5, para identidade.)
+O app **responde 200 com o corpo inteiro** para o malandro. Não é bug, é a mecânica: o servidor não recusa ninguém por causa de CORS, ele só deixa de carimbar. Quem esconde é o browser da vítima. (Se você quer *recusar*, é outra camada: a lição 05, para volume, ou o capítulo 6, para identidade.)
 
 **Sem `Origin`, nada muda** — o `curl` de sempre continua o `curl` de sempre:
 
@@ -265,7 +265,7 @@ async def test_sem_origin_passa_intacta(client):
 
 Você vai encontrar `allow_origins=["*"]` em muito tutorial. Traduzido para português: *qualquer site do mundo pode ler a minha API usando o browser do meu usuário, com o que quer que ele tenha ali dentro.*
 
-Para uma API pública e anônima, tudo bem. Para uma API que um dia terá login — a nossa, no capítulo 5 —, não.
+Para uma API pública e anônima, tudo bem. Para uma API que um dia terá login — a nossa, no capítulo 6 —, não.
 
 E tem uma armadilha específica aí, que vale conhecer antes de cair nela. O browser **recusa** um `Access-Control-Allow-Origin: *` quando a request leva credenciais (cookie, `Authorization`). Então a pessoa tenta `allow_origins=["*"]` com `allow_credentials=True`, e funciona — porque o Starlette, nessa combinação, para de mandar `*` e passa a **ecoar o `Origin` que chegou**. Leia de novo: o resultado é uma API que autoriza, com credenciais, qualquer origem que peça. O `*` que o browser bloquearia virou um `*` que funciona.
 

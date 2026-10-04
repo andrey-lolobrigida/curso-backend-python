@@ -51,7 +51,7 @@ E as pegadinhas de quem chega do Python: aspas **sempre duplas**; `True` com mai
 
 Olhe de novo a tabela: number → `int`, `float`. O JSON tem *um* tipo numérico, e ele não sabe nada de precisão decimal. `80.10` de preço pode virar `80.09999999...` num float — e float com dinheiro é receita de centavos sumindo em extratos.
 
-Não vamos resolver isso agora; só fincar a bandeira: **dinheiro não é float**. Quando o app de despesas compartilhadas nascer e começarmos a dividir contas (capítulo 4), essa rachadura vira cratera — de propósito, para você ver o desastre antes da solução.
+Não vamos resolver isso agora; só fincar a bandeira: **dinheiro não é float**. Quando o app de despesas compartilhadas nascer e começarmos a dividir contas (capítulo 5), essa rachadura vira cratera — de propósito, para você ver o desastre antes da solução.
 
 ## O que você deve conseguir fazer agora
 

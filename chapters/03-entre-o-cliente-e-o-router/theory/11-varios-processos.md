@@ -96,7 +96,7 @@ Guarde a frase, porque ela é maior que o rate limiter:
 
 Você já viu essa frase agir uma vez, disfarçada. A lição 05 tem uma linha estranha no `conftest.py` — `fastapi_app.middleware_stack = None` — que existe porque o processo do pytest também é *um* processo, com *um* balde, e um teste deixava o balde vazio para o próximo. Lá era um teste quebrando. Aqui é o limite do seu app valendo o triplo em produção. Mesma causa, dois tamanhos.
 
-Isto é uma **limitação declarada**, não um bug escondido: está escrita no topo de `app/middleware/rate_limit.py` desde a lição 05, a lição 12 vai recolhê-la junto com as outras, e o conserto tem endereço — **capítulo 6**, quando os baldes saírem da memória do processo e forem para o Redis, que é um lugar que os quatro workers enxergam.
+Isto é uma **limitação declarada**, não um bug escondido: está escrita no topo de `app/middleware/rate_limit.py` desde a lição 05, a lição 12 vai recolhê-la junto com as outras, e o conserto tem endereço — **capítulo 7**, quando os baldes saírem da memória do processo e forem para o Redis, que é um lugar que os quatro workers enxergam.
 
 ## E o pool foi junto
 
@@ -213,14 +213,14 @@ Esse `500` é o fato interessante desta lição, e é uma surpresa. O uvicorn **
 
 Ou seja: um deploy apertado demais não entrega ao cliente um erro de rede, que uma biblioteca decente repetiria. Entrega um `500` bonito e bem-formado, indistinguível de um bug seu.
 
-É por isso que esse número importa fora do laboratório. Todo deploy é uma troca de processos: sobe o novo, para o velho. Se o prazo do velho for menor que a request mais lenta que ele atende, cada deploy espirra `500` em quem estava no meio de alguma coisa. **Deploy sem downtime começa aqui** — e continua no capítulo 10, com quem manda o sinal, quem espera, e quem tira o processo velho do balanceador antes de qualquer uma dessas coisas.
+É por isso que esse número importa fora do laboratório. Todo deploy é uma troca de processos: sobe o novo, para o velho. Se o prazo do velho for menor que a request mais lenta que ele atende, cada deploy espirra `500` em quem estava no meio de alguma coisa. **Deploy sem downtime começa aqui** — e continua no capítulo 11, com quem manda o sinal, quem espera, e quem tira o processo velho do balanceador antes de qualquer uma dessas coisas.
 
 ## O que fica declarado
 
 - **Tudo aqui foi medido no Linux.** O uvicorn documenta `--workers` no Windows também (via `spawn`, que é justamente o que aparece nos `ps` acima), mas **não foi verificado nesta máquina**. Se falhar por lá, o caminho conhecido é o WSL.
 - **Os números da tabela são desta máquina, nesta sessão.** Doze núcleos, loopback, SQLite. A direção se repete em qualquer lugar; os valores exatos, não — e a própria tabela já mostra 61, 67 e 62 para a mesma pergunta.
 - **`--workers` não é um número de sorte.** Não medi qual é o melhor valor aqui, e "um por núcleo" é regra de bolso, não resultado. Medir isso direito precisa de carga parecida com a real e de um banco de verdade — nenhum dos dois existe nesta bancada.
-- **Um worker que morre sozinho não foi testado.** A demonstração do Ctrl+C rodou com o `eco.py` em um processo só — mandei sinal em quem estava atendendo, e não havia pai nem irmão para reagir. Quem devolve o worker que caiu — o pai do uvicorn, um supervisor, um orquestrador — é assunto do capítulo 10.
+- **Um worker que morre sozinho não foi testado.** A demonstração do Ctrl+C rodou com o `eco.py` em um processo só — mandei sinal em quem estava atendendo, e não havia pai nem irmão para reagir. Quem devolve o worker que caiu — o pai do uvicorn, um supervisor, um orquestrador — é assunto do capítulo 11.
 - **O rate limiter continua com os três problemas declarados desde a lição 05.** Esta lição só mostrou o primeiro deles acontecendo na tela.
 
 ## O que você deve conseguir fazer agora

@@ -64,7 +64,7 @@ Juntando esta lição com a 04 e a 05, você tem a árvore completa. Diante de u
 | I/O, e existe lib async | `await` | a espera não custa thread nem conexão |
 | I/O, e a lib só existe síncrona | `asyncio.to_thread(...)` | a thread espera com o GIL solto |
 | CPU pesado | **outro processo** | é a única forma de escapar do GIL |
-| CPU pesado **e** demorado | fila de tarefas | não segure a request; cap. 7 |
+| CPU pesado **e** demorado | fila de tarefas | não segure a request; cap. 8 |
 
 A promessa da lição 04 está cumprida: `asyncio.to_thread` é a válvula para o segundo caso, e a linha "CPU pesado" é o motivo de ela ser válvula e não solução geral.
 
@@ -76,7 +76,7 @@ resultado = await asyncio.to_thread(hash_lento, "segredo")
 
 O loop fica livre enquanto `hash_lento` roda numa thread separada — a rota não trava o servidor inteiro. Mas leia o aviso com atenção: **`to_thread` resolve bloqueio, não resolve CPU.** Se `hash_lento` for cálculo puro, ele vai disputar o GIL com todo o resto do processo, e o seu app inteiro fica mais lento enquanto isso. A request que você salvou custou desempenho de todas as outras.
 
-Para o FairFare, isso vira uma decisão concreta lá no capítulo 7: cálculo de saldo pesado não vira `to_thread`, vira **job em segundo plano**, com o resultado guardado. Segurar uma request HTTP enquanto se calcula por dez segundos é errado por motivos que nem têm a ver com Python.
+Para o FairFare, isso vira uma decisão concreta lá no capítulo 8: cálculo de saldo pesado não vira `to_thread`, vira **job em segundo plano**, com o resultado guardado. Segurar uma request HTTP enquanto se calcula por dez segundos é errado por motivos que nem têm a ver com Python.
 
 ## Uma nota que vai envelhecer
 

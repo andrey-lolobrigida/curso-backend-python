@@ -314,7 +314,7 @@ elif requested_headers is not None:
 
 Agora compare com a linha `allow-headers: content-type` do `FazTudo`. Ele também não permite `authorization` — mas ele nunca olhou o que foi pedido. Respondeu `content-type` porque `content-type` é o que está escrito no arquivo dele, e responderia `content-type` para qualquer coisa. O browser barra os dois; só um dos dois te diz por quê.
 
-Isso é uma bomba-relógio com data marcada — o capítulo 5 traz `Authorization`, o browser vai pedir, e o preflight vai falhar por um motivo que não aparece em lugar nenhum do seu código.
+Isso é uma bomba-relógio com data marcada — o capítulo 6 traz `Authorization`, o browser vai pedir, e o preflight vai falhar por um motivo que não aparece em lugar nenhum do seu código.
 
 **Ele manda `Access-Control-Max-Age`.**
 

@@ -73,7 +73,7 @@ query executada: SELECT * FROM users WHERE email = '' OR '1'='1'
 {'id': 1, 'nome': 'Ana', 'email': 'ana@example.com'}
 ```
 
-O "email" malicioso fechou a aspa, injetou um `OR '1'='1'` — verdadeiro para toda linha — e a query devolveu **a tabela inteira**. Se essa string vem de um campo de formulário, qualquer visitante do seu site lê (ou apaga) seu banco. Isso tem nome, **SQL injection**, décadas de história e um lugar cativo no capítulo 5. Com placeholder `?`, o valor viaja separado do SQL e nunca é interpretado como comando: a mesma busca devolveria zero linhas, educadamente.
+O "email" malicioso fechou a aspa, injetou um `OR '1'='1'` — verdadeiro para toda linha — e a query devolveu **a tabela inteira**. Se essa string vem de um campo de formulário, qualquer visitante do seu site lê (ou apaga) seu banco. Isso tem nome, **SQL injection**, décadas de história e um lugar cativo no capítulo 6. Com placeholder `?`, o valor viaja separado do SQL e nunca é interpretado como comando: a mesma busca devolveria zero linhas, educadamente.
 
 Regra inegociável deste curso: **valor entra em query só via placeholder**.
 

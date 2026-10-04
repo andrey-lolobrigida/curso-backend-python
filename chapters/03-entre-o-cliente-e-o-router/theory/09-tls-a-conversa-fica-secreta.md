@@ -48,7 +48,7 @@ Pense num envelope lacrado, com o nome do remetente conferido na portaria. Agora
 
 **Não garante outras duas, e confundir isso é caro.**
 
-- **Quem *você* é.** TLS autentica o servidor, não o usuário. Que a Carla é a Carla é assunto de autenticação — capítulo 5.
+- **Quem *você* é.** TLS autentica o servidor, não o usuário. Que a Carla é a Carla é assunto de autenticação — capítulo 6.
 - **O que o servidor faz com o dado depois.** O envelope chega lacrado; o que o destinatário faz com a carta é problema dele. Um servidor `https` pode logar o e-mail da Carla em texto puro, vender a lista, ou vazar tudo. TLS protege o **caminho**, não o destino.
 
 E repare no que sobrevive mesmo com TLS: o **endereço** do servidor e a **porta** continuam visíveis (é preciso rotear os pacotes), e o nome do host normalmente também, porque o cliente o anuncia no começo do handshake para o servidor saber qual certificado apresentar. Quem está no meio sabe que você falou com `fairfare.exemplo.com`. Não sabe o que vocês disseram.

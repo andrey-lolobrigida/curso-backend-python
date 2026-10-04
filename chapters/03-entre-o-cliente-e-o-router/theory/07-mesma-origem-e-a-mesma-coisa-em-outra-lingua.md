@@ -69,7 +69,7 @@ O FairFare fica com os dois, e isso é deliberado: a lição 04 é conhecimento 
 
 Você não vai escrever um proxy em Python para produção. Vai configurar um pronto — quase sempre **nginx** ou **Caddy**. E aqui está o ganho de ter escrito o seu: os arquivos de configuração deles deixam de ser feitiço. São os mesmos três blocos do `proxy.py`: **escutar**, **repassar**, **servir estático**.
 
-Estes dois arquivos estão na bancada e são **lidos como texto neste curso — nenhum dos dois é executado**. Instalar nginx ou Caddy é atrito que não ensina nada agora, e o capítulo 10 põe um deles para rodar de verdade, junto com Docker e deploy. Por ora o exercício é de reconhecimento. (Os arquivos no repositório trazem esse aviso num comentário no topo; os trechos abaixo começam depois dele.)
+Estes dois arquivos estão na bancada e são **lidos como texto neste curso — nenhum dos dois é executado**. Instalar nginx ou Caddy é atrito que não ensina nada agora, e o capítulo 11 põe um deles para rodar de verdade, junto com Docker e deploy. Por ora o exercício é de reconhecimento. (Os arquivos no repositório trazem esse aviso num comentário no topo; os trechos abaixo começam depois dele.)
 
 `bancada/Caddyfile`:
 

@@ -73,7 +73,7 @@ Redes falham. Você manda uma request, a resposta não volta... e agora? A reque
 
 Se a request era um GET ou um DELETE — reenvie sem medo, é idempotente, o pior que acontece é um 404. Se era um POST... reenviar pode criar a coisa duas vezes. É exatamente o caso da Ana pagando a quadra em dobro.
 
-Este fantasma tem capítulo marcado: quando formos construir retentativas automáticas e jobs em segundo plano (capítulos 7 e 8), idempotência deixa de ser trivia de protocolo e vira questão de dinheiro. O app de reservas que vamos construir vai sofrer disso na pele — de propósito.
+Este fantasma tem capítulo marcado: quando formos construir retentativas automáticas e jobs em segundo plano (capítulos 8 e 9), idempotência deixa de ser trivia de protocolo e vira questão de dinheiro. O app de reservas que vamos construir vai sofrer disso na pele — de propósito.
 
 ## O que você deve conseguir fazer agora
 

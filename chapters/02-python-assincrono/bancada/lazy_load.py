@@ -1,7 +1,7 @@
 """Bancada: o erro que espera todo mundo que usa relações no SQLAlchemy async.
 
 Este script FALHA de propósito. O objetivo é você reconhecer a mensagem —
-no capítulo 4, quando as relações chegarem ao FairFare, ela vai aparecer.
+no capítulo 5, quando as relações chegarem ao FairFare, ela vai aparecer.
 
 Rode: uv run python chapters/02-python-assincrono/bancada/lazy_load.py
 """

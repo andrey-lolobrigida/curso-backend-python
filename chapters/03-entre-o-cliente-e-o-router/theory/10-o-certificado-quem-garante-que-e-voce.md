@@ -189,10 +189,10 @@ A corrente inteira é a lição 08 pagando: o `proxy.py` escreve `x-forwarded-pr
 
 ## O que fica declarado
 
-- **Este certificado não vale nada fora da sua máquina.** Autoassinado, de trinta dias, para `localhost` e `127.0.0.1`: serve para ver TLS funcionando, e só. Certificado de verdade, emitido e renovado por uma CA, é capítulo 10.
+- **Este certificado não vale nada fora da sua máquina.** Autoassinado, de trinta dias, para `localhost` e `127.0.0.1`: serve para ver TLS funcionando, e só. Certificado de verdade, emitido e renovado por uma CA, é capítulo 11.
 - **O `-k` continua existindo e continua sendo perigoso.** Num script que fala com um serviço real, `-k` desliga justamente a parte do TLS que te protege de um atacante no meio.
 - **A bancada não mediu o custo do handshake em milissegundos.** A lição 09 mediu a **estrutura** dos dois handshakes, com o `curl -v`. Em loopback a diferença de tempo some no ruído. A conta que importa é a da lição 02: uma ida e volta na internet custa ~5,9 ms, e agora são duas ou três antes do primeiro byte.
-- **Nada de Let's Encrypt, nem de Caddy, rodou aqui.** O que esta lição diz sobre HTTPS automático é leitura da documentação do Caddy: o `Caddyfile` da bancada segue lido e nunca executado. E HTTPS público exige o que a bancada não tem — domínio público e portas abertas para o mundo. Capítulo 10.
+- **Nada de Let's Encrypt, nem de Caddy, rodou aqui.** O que esta lição diz sobre HTTPS automático é leitura da documentação do Caddy: o `Caddyfile` da bancada segue lido e nunca executado. E HTTPS público exige o que a bancada não tem — domínio público e portas abertas para o mundo. Capítulo 11.
 - **O `carga.py` e a `pagina/index.html` não falam TLS.** Os dois apontam para `http://`. A bancada continua em texto puro por padrão; o TLS é um arranjo extra, montado à mão.
 - **Terminar TLS na borda deixa o trecho proxy→app em texto puro**, e isso é aceitável exatamente quando esse trecho é loopback ou rede interna confiável. Se ele atravessar uma rede que você não controla, o problema desta lição volta inteiro — só que dentro da sua infraestrutura.
 

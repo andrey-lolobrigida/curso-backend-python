@@ -128,7 +128,7 @@ Mas toca. É o **lazy load** (carregamento preguiçoso) do ORM: `coisa.dono` nã
 
 A tradução prática de `greenlet_spawn has not been called`: o SQLAlchemy tentou fazer I/O num contexto síncrono de onde não dava para voltar ao loop.
 
-**O FairFare escapa disso hoje por sorte:** nossos models (`User`, `Resource`, `Booking`) não têm nenhum `relationship()`. As relações chegam no capítulo 4, e junto com elas o carregamento explícito (`selectinload` e companhia) que é a cura. Este parágrafo existe para que, no dia em que a mensagem aparecer na sua tela, você já a tenha visto uma vez, na bancada, num script de dez linhas — em vez de descobri-la em produção.
+**O FairFare escapa disso hoje por sorte:** nossos models (`User`, `Resource`, `Booking`) não têm nenhum `relationship()`. As relações chegam no capítulo 5, e junto com elas o carregamento explícito (`selectinload` e companhia) que é a cura. Este parágrafo existe para que, no dia em que a mensagem aparecer na sua tela, você já a tenha visto uma vez, na bancada, num script de dez linhas — em vez de descobri-la em produção.
 
 ## O que você deve conseguir fazer agora
 

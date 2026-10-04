@@ -48,7 +48,7 @@ Agora a conta que paga sete lições de refatoração: trocamos o banco do app i
 
 **Sobre o `create_all`.** O conftest cria as tabelas com `Base.metadata.create_all(engine)` — o método que a lição 07 aposentou em favor de migrações. Contradição? Não: migração existe para levar um banco **com vida longa e dados dentro** de um schema a outro sem perdas. O banco de teste vive milissegundos e nasce vazio; não há nada a preservar. Ferramenta certa para cada trabalho.
 
-**Sobre a profundidade.** Dez testes de fumaça não são uma estratégia de testes. Não testamos o service isolado, não testamos casos de borda de datas, não medimos cobertura. Está tudo bem — por enquanto. Estratégia de testes (o que testar em cada camada, e por quê) é assunto do capítulo 9. O que temos hoje é o mínimo que nos deixa refatorar sem medo.
+**Sobre a profundidade.** Dez testes de fumaça não são uma estratégia de testes. Não testamos o service isolado, não testamos casos de borda de datas, não medimos cobertura. Está tudo bem — por enquanto. Estratégia de testes (o que testar em cada camada, e por quê) é assunto do capítulo 10. O que temos hoje é o mínimo que nos deixa refatorar sem medo.
 
 ## O que você deve conseguir fazer agora
 

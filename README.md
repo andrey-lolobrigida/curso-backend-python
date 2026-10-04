@@ -4,7 +4,7 @@
 
 Um curso mão na massa para quem já sabe escrever Python e talvez já tenha construído um pequeno app web — e agora quer entender como **backends de verdade** funcionam. Não é mais um tutorial de CRUD: este é o curso sobre tudo o que acontece *depois* que o tutorial acaba.
 
-Você vai construir uma aplicação do zero — o FairFare, um app de reservas em grupo com divisão de despesas — e fazê-la crescer capítulo a capítulo até algo com cara de produção: arquitetura em camadas, async, banco de dados de verdade, autenticação, cache, jobs em segundo plano, observabilidade, testes e deploy.
+Você vai construir uma aplicação do zero — o FairFare, um app de reservas em grupo com divisão de despesas — e fazê-la crescer capítulo a capítulo até algo com cara de produção: arquitetura em camadas, async, banco de dados de verdade, relações e dinheiro, autenticação, cache, jobs em segundo plano, observabilidade, testes e deploy.
 
 ## Para quem é este curso
 
@@ -59,13 +59,14 @@ Python 3.12+, FastAPI, Pydantic, SQLAlchemy, Alembic, PostgreSQL, pytest — com
 1. Arquitetura em camadas — routers, services, repositories, models, schemas, migrações
 2. Python assíncrono — event loops, bloqueio, o GIL, pools de conexão
 3. Entre o cliente e o router — servidores ASGI, proxies reversos, CORS, TLS, rate limiting
-4. O banco de dados, de verdade — transações, locking, índices, N+1, matemática de dinheiro
-5. Autenticação e segurança — sessões vs JWTs, OAuth2, permissões
-6. Cache e estado — Redis, invalidação, e quando o cache mente
-7. Trabalho em segundo plano e filas — workers, retentativas, idempotência
-8. Falhas e observabilidade — logging, métricas, timeouts, backoff
-9. Estratégia de testes — o que testar em cada camada
-10. Colocando no ar — Docker, CI/CD, segredos, escalabilidade
+4. O banco de dados, de verdade — PostgreSQL, pool de conexões, índices, transações, isolamento, locking
+5. Relações e dinheiro — relações, N+1, matemática de dinheiro, quando descer para SQL puro
+6. Autenticação e segurança — sessões vs JWTs, OAuth2, permissões
+7. Cache e estado — Redis, invalidação, e quando o cache mente
+8. Trabalho em segundo plano e filas — workers, retentativas, idempotência
+9. Falhas e observabilidade — logging, métricas, timeouts, backoff
+10. Estratégia de testes — o que testar em cada camada
+11. Colocando no ar — Docker, CI/CD, segredos, escalabilidade
 
 (Os capítulos são planejados em detalhe conforme são escritos — este arco é o mapa, não o terreno.)
 

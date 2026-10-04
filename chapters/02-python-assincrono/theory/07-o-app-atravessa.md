@@ -116,7 +116,7 @@ Cada `_to_out` faz **duas consultas** ao banco (busca o usuário, busca o recurs
 
 A novidade desconfortável: **agora está pior.** Antes, as 101 consultas eram síncronas, uma atrás da outra. Agora são 101 corrotinas, uma atrás da outra — cada uma com o custo extra de ida e volta ao event loop. Async não conserta N+1. Async não conserta *nada* que seja "muitas idas ao banco"; ele só muda como cada ida é esperada.
 
-E não, não vamos consertar isso aqui. O conserto é `selectinload` ou um `join` — assunto do capítulo 4, junto com relações e índices. **A lição 11 volta a essa dívida e a declara por escrito**, com todas as outras. O que este capítulo não faz, ele diz que não faz.
+E não, não vamos consertar isso aqui. O conserto é `selectinload` ou um `join` — assunto do capítulo 5, junto com as relações. **A lição 11 volta a essa dívida e a declara por escrito**, com todas as outras. O que este capítulo não faz, ele diz que não faz.
 
 O resto do service é a transformação mecânica de sempre: `async def` nos métodos, `await` nas chamadas de repositório, `AsyncSession` no `__init__`. A regra de negócio — comparar datas, decidir conflito, recusar cancelamento no passado — não mudou uma vírgula. Ela nunca soube em que mundo estava rodando, e continua sem saber.
 

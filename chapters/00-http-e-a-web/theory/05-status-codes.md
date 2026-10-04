@@ -49,7 +49,7 @@ $ curl -i -X POST localhost:8000/reservas \
 HTTP/1.1 400 Bad Request
 ```
 
-**401 Unauthorized** — você não se identificou (ou se identificou mal). Nosso `/segredo` devolve isso para quem chega sem credencial. Detalhe de nomenclatura mal resolvida do protocolo: apesar do nome, 401 é sobre **identificação**, não autorização. O código para "sei quem você é, mas você não pode" é o **403 Forbidden**. Essa distinção rende conversa no capítulo 5.
+**401 Unauthorized** — você não se identificou (ou se identificou mal). Nosso `/segredo` devolve isso para quem chega sem credencial. Detalhe de nomenclatura mal resolvida do protocolo: apesar do nome, 401 é sobre **identificação**, não autorização. O código para "sei quem você é, mas você não pode" é o **403 Forbidden**. Essa distinção rende conversa no capítulo 6.
 
 **404 Not Found** — o recurso não existe:
 
@@ -68,7 +68,7 @@ Allow: GET
 
 **415 Unsupported Media Type** — você mandou um corpo num formato que o servidor não aceita (ou esqueceu de dizer o formato). Guarde este; ele vai morder no exercício 3.
 
-**500 Internal Server Error** — o servidor quebrou processando sua request: uma exceção não tratada, um bug, um banco fora do ar. O nosso mini-servidor é simples demais para provocar um 500 honesto — mas prometo que, a partir do capítulo 1, você vai gerar muitos. Todo backend real gera. A diferença entre amador e profissional é o que acontece *depois* (capítulo 8).
+**500 Internal Server Error** — o servidor quebrou processando sua request: uma exceção não tratada, um bug, um banco fora do ar. O nosso mini-servidor é simples demais para provocar um 500 honesto — mas prometo que, a partir do capítulo 1, você vai gerar muitos. Todo backend real gera. A diferença entre amador e profissional é o que acontece *depois* (capítulo 9).
 
 ## Uma curiosidade que é quase um aperto de mão secreto
 

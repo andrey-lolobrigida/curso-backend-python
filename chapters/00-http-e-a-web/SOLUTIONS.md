@@ -83,7 +83,7 @@ $ curl localhost:8000/reservas
 [ { "id": 1, ... }, { "id": 2, ... } ]
 ```
 
-**Duas reservas.** Requests idênticas, efeitos acumulados: POST não é idempotente (lição 06). Agora imagine que cada reserva custa R$80 e a segunda request foi uma retentativa automática depois de um timeout... É exatamente assim que se cobra alguém duas vezes, e é por isso que idempotência deixará de ser trivia e virará projeto de engenharia nos capítulos 7 e 8.
+**Duas reservas.** Requests idênticas, efeitos acumulados: POST não é idempotente (lição 06). Agora imagine que cada reserva custa R$80 e a segunda request foi uma retentativa automática depois de um timeout... É exatamente assim que se cobra alguém duas vezes, e é por isso que idempotência deixará de ser trivia e virará projeto de engenharia nos capítulos 8 e 9.
 
 ### T8 — o café recusado
 

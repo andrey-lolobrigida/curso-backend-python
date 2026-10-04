@@ -30,7 +30,7 @@ A afirmação precisa: **HTTP é um protocolo sem estado (stateless)** — nenhu
 
 Imagine que o HTTP *lembrasse*: cada conversa teria um fio de contexto, e o servidor que começou a te atender seria o único capaz de continuar — ele teria suas lembranças.
 
-Sem memória, qualquer request pode ser atendida por **qualquer servidor**. Dez máquinas idênticas atrás de um distribuidor de carga: a request 1 cai na máquina 3, a request 2 na máquina 7, e nada quebra — nenhuma delas precisava lembrar de você. Uma máquina morre? As outras seguem. Tráfego dobrou? Ligue mais máquinas. **Escalar backends é infinitamente mais fácil porque o protocolo é desmemoriado.** (Capítulo 10 colhe esse fruto.)
+Sem memória, qualquer request pode ser atendida por **qualquer servidor**. Dez máquinas idênticas atrás de um distribuidor de carga: a request 1 cai na máquina 3, a request 2 na máquina 7, e nada quebra — nenhuma delas precisava lembrar de você. Uma máquina morre? As outras seguem. Tráfego dobrou? Ligue mais máquinas. **Escalar backends é infinitamente mais fácil porque o protocolo é desmemoriado.** (Capítulo 11 colhe esse fruto.)
 
 O preço: o problema "quem é você?" não é resolvido pelo protocolo — ele é **empurrado para dentro de cada request**. Foi o que fizemos com o `X-Senha`: a credencial viajou em toda request que precisou dela.
 
@@ -40,7 +40,7 @@ Você loga uma vez e navega logado por dias. Se cada request nasce órfã, como?
 
 Resposta curta: a credencial está indo em **todas as requests** — você é que não vê. Depois do login, o servidor entrega ao navegador um crachá (um **cookie** de sessão ou um **token**), e o navegador o anexa automaticamente, como um header, a cada request seguinte. O protocolo continua sem memória; o *cliente* é que repete a apresentação, incansavelmente, em seu nome.
 
-Como esse crachá é emitido, verificado e revogado — sessões vs JWTs, os detalhes que separam um login seguro de uma vulnerabilidade — é o coração do capítulo 5. Por ora, basta o mecanismo: **estado de "quem é você" viaja na request, sempre.**
+Como esse crachá é emitido, verificado e revogado — sessões vs JWTs, os detalhes que separam um login seguro de uma vulnerabilidade — é o coração do capítulo 6. Por ora, basta o mecanismo: **estado de "quem é você" viaja na request, sempre.**
 
 ## "Mas o servidor guarda as reservas!"
 

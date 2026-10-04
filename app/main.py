@@ -13,7 +13,7 @@ app = FastAPI(title="FairFare")
 app.add_middleware(RateLimitMiddleware, capacidade=20, recarga_por_segundo=5.0)
 
 # A página da bancada mora em http://localhost:8080. Origem explícita: nada de "*".
-# Content-Type já é permitido por padrão; quando a API pedir Authorization (cap. 5),
+# Content-Type já é permitido por padrão; quando a API pedir Authorization (cap. 6),
 # ele entra em allow_headers.
 app.add_middleware(
     CORSMiddleware,

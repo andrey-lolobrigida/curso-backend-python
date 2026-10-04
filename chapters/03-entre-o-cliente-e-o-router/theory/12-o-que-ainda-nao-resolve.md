@@ -25,7 +25,7 @@ Um `dict` comum, num atributo de instância, na memória de **um** processo Pyth
 
 E há um respingo na suíte: a linha `fastapi_app.middleware_stack = None` do `conftest.py` existe só porque o processo do pytest também é um processo, com um balde só que um teste esvazia para o seguinte. É uma gambiarra de teste comprada por esta limitação, e some quando a limitação sumir.
 
-**Resolvido no:** capítulo 6, com Redis.
+**Resolvido no:** capítulo 7, com Redis.
 
 ### 1b. A chave é o IP em que o servidor resolveu acreditar
 
@@ -39,7 +39,7 @@ O middleware pergunta ao `scope` quem é o cliente, e usa a resposta como chave 
 
 **Por que continua:** a cura é de configuração, não de código — a borda escreve o header, o app só confia em quem está listado, e o app não é alcançável por fora da borda. A lição 08 escreveu essa configuração; numa máquina só, com proxy e atacante no mesmo `127.0.0.1`, ela não tem como ser demonstrada.
 
-**Resolvido no:** capítulo 10, onde Docker e endereços de verdade tornam a configuração rodável.
+**Resolvido no:** capítulo 11, onde Docker e endereços de verdade tornam a configuração rodável.
 
 ### 1c. O dicionário nunca esquece ninguém
 
@@ -49,11 +49,11 @@ Cada IP que bate na porta vira uma entrada. Nenhuma entrada sai. Não há TTL, n
 
 **Por que continua:** um `dict` com expiração feito à mão é código de infraestrutura, e Redis já resolve isso com uma linha por chave.
 
-**Resolvido no:** capítulo 6, via TTL.
+**Resolvido no:** capítulo 7, via TTL.
 
 ### E uma frase para guardar: rate limit não é autenticação
 
-Ele conta requests por IP. Não sabe quem é ninguém, e o item 1b mostrou como IP é uma identidade frágil. Contar volume e decidir permissão são dois problemas diferentes, e o segundo é o capítulo 5.
+Ele conta requests por IP. Não sabe quem é ninguém, e o item 1b mostrou como IP é uma identidade frágil. Contar volume e decidir permissão são dois problemas diferentes, e o segundo é o capítulo 6.
 
 ## 2. As origens e os limites estão cravados no código
 
@@ -69,9 +69,9 @@ app.add_middleware(RateLimitMiddleware, capacidade=20, recarga_por_segundo=5.0)
 
 **Como se manifesta:** publicar a página em outro domínio exige editar Python e fazer deploy. Afrouxar o limite em produção sem afrouxar em desenvolvimento é impossível. Configuração misturada com código sempre acaba assim.
 
-E falta ali um valor que o capítulo 5 vai obrigar a escrever: não existe `allow_headers`, porque os headers da lista segura já passam sozinhos — quando a API pedir `Authorization`, ele entra. O comentário ao lado do `CORSMiddleware` no `main.py` já avisa. **Capítulo 5.**
+E falta ali um valor que o capítulo 6 vai obrigar a escrever: não existe `allow_headers`, porque os headers da lista segura já passam sozinhos — quando a API pedir `Authorization`, ele entra. O comentário ao lado do `CORSMiddleware` no `main.py` já avisa. **Capítulo 6.**
 
-**Resolvido no:** capítulo 10, com configuração por ambiente.
+**Resolvido no:** capítulo 11, com configuração por ambiente.
 
 ## 3. O proxy da bancada é instrumento, não produto
 
@@ -79,18 +79,18 @@ E falta ali um valor que o capítulo 5 vai obrigar a escrever: não existe `allo
 
 | O que falta | Como aparece | Morre no |
 |---|---|---|
-| `HOP_BY_HOP` é uma lista fixa, não a definição do RFC 7230 | um header citado em `Connection:` mas fora do conjunto atravessa; faltam `proxy-authenticate`/`proxy-authorization` | cap. 10 |
-| Headers repetidos da resposta viram um só, com vírgula | inofensivo hoje; errado quando o cap. 5 trouxer `set-cookie` e este arquivo for reaproveitado | cap. 10 |
-| Segura o corpo inteiro na memória | um upload grande vira RAM | cap. 10 |
-| Cria o `AsyncClient` no import e nunca o fecha | num app de verdade isso vai para o `lifespan` | cap. 10 |
-| Duplica `date` e `server` na resposta | visível em qualquer `curl -i` na 8080 | cap. 10 |
+| `HOP_BY_HOP` é uma lista fixa, não a definição do RFC 7230 | um header citado em `Connection:` mas fora do conjunto atravessa; faltam `proxy-authenticate`/`proxy-authorization` | cap. 11 |
+| Headers repetidos da resposta viram um só, com vírgula | inofensivo hoje; errado quando o cap. 6 trouxer `set-cookie` e este arquivo for reaproveitado | cap. 11 |
+| Segura o corpo inteiro na memória | um upload grande vira RAM | cap. 11 |
+| Cria o `AsyncClient` no import e nunca o fecha | num app de verdade isso vai para o `lifespan` | cap. 11 |
+| Duplica `date` e `server` na resposta | visível em qualquer `curl -i` na 8080 | cap. 11 |
 | Imprime toda request no terminal, corpo incluído | de propósito: é o gancho da lição 09 | *ressalva de bancada* |
-| Sobrescreve o `X-Forwarded-For`, nunca acrescenta | certo para uma borda; como segundo proxy de uma cadeia, apagaria o cliente real | cap. 10 |
-| Sem timeout fino, sem retry, sem HTTP/2 | — | cap. 10 |
+| Sobrescreve o `X-Forwarded-For`, nunca acrescenta | certo para uma borda; como segundo proxy de uma cadeia, apagaria o cliente real | cap. 11 |
+| Sem timeout fino, sem retry, sem HTTP/2 | — | cap. 11 |
 
 **Por que continua:** ele existe para caber em cinquenta linhas legíveis. Um proxy correto é maior que este capítulo.
 
-**Resolvido no:** capítulo 10, com Caddy ou nginx de verdade, em Docker. Os arquivos `Caddyfile` e `nginx.conf` da bancada continuam sendo **lidos como texto e nunca executados** neste curso.
+**Resolvido no:** capítulo 11, com Caddy ou nginx de verdade, em Docker. Os arquivos `Caddyfile` e `nginx.conf` da bancada continuam sendo **lidos como texto e nunca executados** neste curso.
 
 ## 4. Nesta bancada o FairFare continua alcançável pela porta dos fundos
 
@@ -98,7 +98,7 @@ E falta ali um valor que o capítulo 5 vai obrigar a escrever: não existe `allo
 
 **Por que continua:** de propósito. As duas cargas — a que passa pelo proxy e a que fura o proxy — precisam existir lado a lado para a lição 08 poder compará-las.
 
-**Resolvido no:** capítulo 10. A cura não é código: é a rede do deploy, onde só o proxy alcança o app.
+**Resolvido no:** capítulo 11. A cura não é código: é a rede do deploy, onde só o proxy alcança o app.
 
 ## 5. O TLS ficou pela metade, e a metade que falta está declarada
 
@@ -106,9 +106,9 @@ Duas dívidas com capítulo, e duas ressalvas que não são defeito e não morre
 
 | O quê | Como aparece | Morre no |
 |---|---|---|
-| O certificado é autoassinado, de trinta dias, para `localhost` | serve para ver TLS funcionando, e só | cap. 10 (CA de verdade, emissão e renovação) |
+| O certificado é autoassinado, de trinta dias, para `localhost` | serve para ver TLS funcionando, e só | cap. 11 (CA de verdade, emissão e renovação) |
 | O custo do handshake em milissegundos nunca foi medido | a lição 09 mediu a *estrutura* (uma ida e volta no 1.3, duas no 1.2); em loopback o tempo some no ruído — o número usável é o da lição 02, ~5,9 ms por ida e volta, vezes duas ou três | *ressalva de medição* |
-| O trecho proxy→app viaja em texto puro | aceitável enquanto for loopback ou rede interna confiável; fora disso, o problema da lição 09 volta dentro da sua infraestrutura | cap. 10, com a rede do deploy |
+| O trecho proxy→app viaja em texto puro | aceitável enquanto for loopback ou rede interna confiável; fora disso, o problema da lição 09 volta dentro da sua infraestrutura | cap. 11, com a rede do deploy |
 | `carga.py` e `pagina/index.html` apontam para `http://` | a bancada é texto puro por padrão; TLS é arranjo montado à mão | *ressalva de bancada* |
 
 ## 6. Sobre os vários processos, o que não foi testado
@@ -117,7 +117,7 @@ Duas dívidas com capítulo, três ressalvas de bancada ou de medição.
 
 | O quê | Como aparece | Morre no |
 |---|---|---|
-| Um worker que morre sozinho nunca foi testado | a demonstração de shutdown da lição 11 rodou num processo único, com sinal mandado à mão; quem devolve o worker que caiu é o pai do uvicorn, um supervisor ou um orquestrador | cap. 10 |
+| Um worker que morre sozinho nunca foi testado | a demonstração de shutdown da lição 11 rodou num processo único, com sinal mandado à mão; quem devolve o worker que caiu é o pai do uvicorn, um supervisor ou um orquestrador | cap. 11 |
 | Windows não foi verificado | o uvicorn documenta `--workers` lá, via `spawn`; aqui só Linux rodou; caminho conhecido em caso de problema: WSL | *ressalva de bancada* |
 | Qual é o melhor valor de `--workers` não foi medido | "um por núcleo" é regra de bolso, não resultado | *ressalva de medição* |
 | Os números são desta máquina, nesta sessão | doze núcleos, loopback, SQLite; a direção se repete, os valores não (61, 67, 62 para a mesma pergunta) | *ressalva de medição* |
@@ -128,8 +128,8 @@ Duas dívidas com capítulo, três ressalvas de bancada ou de medição.
 Nada do que este capítulo fez mexeu nelas. Cada uma está explicada na lição 11 do capítulo 2:
 
 - **Duas pessoas ainda podem reservar o mesmo horário** — o check-then-act de `BookingService.create`. Capítulo 4.
-- **`GET /bookings` ainda faz 2N+1 consultas** — o N+1 do capítulo 1. Capítulo 4.
-- **Ainda não existe autenticação nenhuma** — o `user_id` continua sendo uma afirmação do cliente. Capítulo 5.
+- **`GET /bookings` ainda faz 2N+1 consultas** — o N+1 do capítulo 1. Capítulo 5.
+- **Ainda não existe autenticação nenhuma** — o `user_id` continua sendo uma afirmação do cliente. Capítulo 6.
 
 E vale reler as duas primeiras à luz deste capítulo. O rate limiter recusa volume, não intenção: um cliente dentro do limite ainda dispara a corrida de reserva dupla. O CORS não protege nada disso — ele protege o usuário do browser, e um `curl` nunca viu um erro de CORS na vida.
 
