@@ -1,0 +1,23 @@
+# O PostgreSQL do curso, e só ele. O app continua rodando fora do Docker (cap. 4, lição 01).
+# Credenciais fixas de desenvolvimento: uma limitação declarada (segredos: cap. 11).
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: fairfare
+      POSTGRES_PASSWORD: fairfare
+      POSTGRES_DB: fairfare
+    ports:
+      - "5432:5432"
+    volumes:
+      # No Postgres 18 o volume vai em /var/lib/postgresql (não mais em .../data).
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fairfare -d fairfare"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+      start_period: 60s
+
+volumes:
+  pgdata:
