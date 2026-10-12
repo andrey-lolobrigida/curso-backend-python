@@ -1,9 +1,32 @@
-from sqlalchemy import Numeric, cast, func, select, union_all
+from sqlalchemy import select, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.models import Expense, ExpenseShare, Group, GroupMember, User
+from app.models import Group, GroupMember
+
+# O saldo de cada membro: tudo o que pagou, menos tudo o que consumiu (lição 10).
+# Escrita em SQL porque é um relatório: lê-se de cima para baixo, cola-se no psql,
+# passa no EXPLAIN. Os :parâmetros vão separados do texto. Nunca f-string.
+SALDOS = text("""
+    WITH movimentos AS (
+        SELECT paid_by AS user_id, valor
+          FROM expenses
+         WHERE group_id = :grupo
+        UNION ALL
+        SELECT p.user_id, -p.valor
+          FROM expense_shares p
+          JOIN expenses e ON e.id = p.expense_id
+         WHERE e.group_id = :grupo
+    )
+    SELECT m.user_id, u.nome, CAST(COALESCE(SUM(mv.valor), 0) AS NUMERIC(20, 2)) AS saldo
+      FROM group_members m
+      JOIN users u ON u.id = m.user_id
+      LEFT JOIN movimentos mv ON mv.user_id = m.user_id
+     WHERE m.group_id = :grupo
+     GROUP BY m.user_id, u.nome
+     ORDER BY m.user_id
+""")
 
 
 class MemberAlreadyExistsError(Exception):
@@ -50,27 +73,4 @@ class GroupRepository:
         return set(resultado)
 
     async def balances(self, group_id: int):
-        # Cada movimento de dinheiro vira uma linha (user_id, valor): quem pagou ganha,
-        # quem consumiu perde. O saldo é a soma por membro (lição 09).
-        movimentos = union_all(
-            select(Expense.paid_by.label("user_id"), Expense.valor).where(
-                Expense.group_id == group_id
-            ),
-            select(ExpenseShare.user_id, (-ExpenseShare.valor).label("valor"))
-            .join(Expense, Expense.id == ExpenseShare.expense_id)
-            .where(Expense.group_id == group_id),
-        ).cte("movimentos")
-        stmt = (
-            select(
-                GroupMember.user_id,
-                User.nome,
-                # Membro sem movimento: o SUM dá NULL, e o 0 sem casas viraria "0" no JSON.
-                cast(func.coalesce(func.sum(movimentos.c.valor), 0), Numeric(20, 2)).label("saldo"),
-            )
-            .join(User, User.id == GroupMember.user_id)
-            .outerjoin(movimentos, movimentos.c.user_id == GroupMember.user_id)
-            .where(GroupMember.group_id == group_id)
-            .group_by(GroupMember.user_id, User.nome)
-            .order_by(GroupMember.user_id)
-        )
-        return (await self.db.execute(stmt)).all()
+        return (await self.db.execute(SALDOS, {"grupo": group_id})).all()

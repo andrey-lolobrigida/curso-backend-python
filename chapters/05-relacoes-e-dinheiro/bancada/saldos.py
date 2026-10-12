@@ -19,6 +19,10 @@ concorrente reusar um id já em uso.
   docker compose up -d --wait
   uv run python chapters/05-relacoes-e-dinheiro/bancada/saldos.py
   uv run python chapters/05-relacoes-e-dinheiro/bancada/saldos.py --despesas 20000
+  uv run python chapters/05-relacoes-e-dinheiro/bancada/saldos.py --manter
+
+Com --manter, o grupo fica no banco no fim (lição 10: colar a consulta no psql).
+Para apagá-lo, rode o script de novo sem --manter: a limpeza do começo leva a sobra.
 
 Três jeitos de calcular o mesmo saldo, cada um medido 3 vezes (consultas e tempo):
   (a) Python ingênuo: duas consultas por membro (o que pagou, o que consumiu).
@@ -213,6 +217,8 @@ async def mede(nome: str, funcao, group_id: int) -> dict[int, Decimal]:
 async def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--despesas", type=int, default=2000)
+    # --manter: não apaga o grupo no fim, para colar a consulta no psql (lição 10).
+    parser.add_argument("--manter", action="store_true")
     args = parser.parse_args()
 
     async with SessionLocal() as db:
@@ -236,10 +242,14 @@ async def main() -> None:
             raise SystemExit(f"Os três discordam!\n(a) {a}\n(b) {b}\n(c) {c}")
         print(f"os três concordam; soma dos saldos = {sum(c.values())}")
     finally:
-        async with SessionLocal() as db, db.begin():
-            await apaga_sobras(db)
+        if not args.manter:
+            async with SessionLocal() as db, db.begin():
+                await apaga_sobras(db)
         await engine.dispose()
-    print("dados da bancada apagados")
+    if args.manter:
+        print(f"dados da bancada mantidos: group_id={group_id} (rode sem --manter para apagar)")
+    else:
+        print("dados da bancada apagados")
 
 
 asyncio.run(main())

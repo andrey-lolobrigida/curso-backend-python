@@ -64,7 +64,29 @@ uv run python chapters/05-relacoes-e-dinheiro/bancada/saldos.py
 
 # 20000 despesas: 200 mil linhas de partes
 uv run python chapters/05-relacoes-e-dinheiro/bancada/saldos.py --despesas 20000
+
+# Lição 10: não apaga o grupo no fim, para colar a consulta no psql. Imprime o group_id.
+uv run python chapters/05-relacoes-e-dinheiro/bancada/saldos.py --manter
 ```
+
+Com `--manter`, o grupo, os 10 usuários e as despesas ficam no banco de dev. Para apagá-los,
+rode o script de novo sem a opção: a limpeza do começo leva a sobra, e a do fim, a rodada nova.
 
 O (c) chama o repository direto, então conta **1** consulta. Pelo endpoint são 2: o service
 confere antes se o grupo existe. É o número que o guardião dos testes cobra.
+
+## `injecao.py` — lição 10
+
+Injeção de SQL ao vivo. O script busca um usuário pelo nome de três jeitos: (1) com uma
+f-string e o nome `Ana`; (2) com a mesma f-string e o nome `x' OR '1'='1`; (3) com um
+parâmetro (`:nome`) e o mesmo nome malicioso. Para cada um, imprime o SQL que vai ao driver,
+os parâmetros e as linhas que voltaram.
+
+É **só leitura**: três `SELECT` em `users`, nenhuma escrita. Precisa de um usuário chamado
+`Ana` no banco de dev (o da lição 04).
+
+```bash
+uv run python chapters/05-relacoes-e-dinheiro/bancada/injecao.py
+```
+
+A f-string do script é o exemplo do que nunca fazer. Ela está lá para ser vista quebrando.
