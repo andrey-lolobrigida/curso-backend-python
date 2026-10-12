@@ -110,3 +110,18 @@ async def test_nao_cancela_reserva_passada(client):
 async def test_cancelar_reserva_inexistente_e_404(client):
     resp = await client.delete("/bookings/999")
     assert resp.status_code == 404
+
+
+async def test_lista_reservas_com_nomes(client):
+    # Nenhum teste listava uma reserva (o GET do cancelamento lista a tabela vazia):
+    # o bug da lição 02 passava pelo create e só morria aqui.
+    user = await cria_usuario(client)
+    resource = await cria_recurso(client)
+    await cria_reserva(
+        client, user["id"], resource["id"], "2030-01-01T10:00:00Z", "2030-01-01T12:00:00Z"
+    )
+    resp = await client.get("/bookings")
+    assert resp.status_code == 200
+    [reserva] = resp.json()
+    assert reserva["user_nome"] == "Ana"
+    assert reserva["resource_nome"] == "Quadra 1"
