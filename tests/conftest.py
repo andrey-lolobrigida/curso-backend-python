@@ -53,7 +53,11 @@ async def engine_de_teste():
     async with engine.begin() as conn:
         # Limpa ANTES, não depois: se um teste falhar, o estado dele fica no banco
         # para você olhar com o psql.
-        await conn.execute(text("TRUNCATE users, resources, bookings RESTART IDENTITY CASCADE"))
+        await conn.execute(
+            text(
+                "TRUNCATE users, resources, bookings, groups, group_members RESTART IDENTITY CASCADE"
+            )
+        )
     yield engine
     await engine.dispose()
 

@@ -42,3 +42,13 @@ def conta_consultas(engine):
         yield contagem
     finally:
         event.remove(engine.sync_engine, "before_cursor_execute", conta)
+
+
+async def cria_grupo(client, nome="Viagem"):
+    resp = await client.post("/groups", json={"nome": nome})
+    assert resp.status_code == 201
+    return resp.json()
+
+
+async def adiciona_membro(client, group_id, user_id):
+    return await client.post(f"/groups/{group_id}/members", json={"user_id": user_id})
