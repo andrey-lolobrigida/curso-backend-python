@@ -1,7 +1,8 @@
 # Bancada do capítulo 5
 
 Scripts para medir o app por dentro. Nenhum deles é código do app.
-Todos falam com o PostgreSQL do `compose.yaml`: suba antes com `docker compose up -d --wait`.
+Quase todos falam com o PostgreSQL do `compose.yaml`: suba antes com `docker compose up -d --wait`.
+A exceção está marcada na seção do script.
 
 ## `conta_consultas.py` — lição 03
 
@@ -27,3 +28,15 @@ uv run python chapters/05-relacoes-e-dinheiro/bancada/conta_consultas.py --joine
 ```
 
 O tempo do `--joinedload` não passa por HTTP nem pelo JSON. Não compare com o do endpoint.
+
+## `float.py` — lição 05
+
+Seis desastres do `float` com dinheiro, um por seção, cada um com a conta e o resultado.
+É Python puro: não fala com o banco nem com o app, e não precisa do compose de pé.
+O `Decimal` aparece só como lupa: `Decimal(um_float)` mostra o número que o `float` guarda.
+
+```bash
+uv run python chapters/05-relacoes-e-dinheiro/bancada/float.py
+```
+
+O desastre 1 soma num laço de propósito. O `sum()` do Python 3.12 compensa o erro e daria `1.0`.
