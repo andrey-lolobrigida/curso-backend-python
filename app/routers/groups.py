@@ -2,7 +2,15 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.schemas import ExpenseCreate, ExpenseOut, GroupCreate, GroupOut, MemberAdd, MemberOut
+from app.schemas import (
+    BalanceOut,
+    ExpenseCreate,
+    ExpenseOut,
+    GroupCreate,
+    GroupOut,
+    MemberAdd,
+    MemberOut,
+)
 from app.services import (
     AlreadyMemberError,
     ExpenseService,
@@ -24,6 +32,14 @@ async def create_group(data: GroupCreate, db: AsyncSession = Depends(get_db)):
 async def get_group(group_id: int, db: AsyncSession = Depends(get_db)):
     try:
         return await GroupService(db).get(group_id)
+    except GroupNotFoundError:
+        raise HTTPException(status_code=404, detail="grupo não existe")
+
+
+@router.get("/{group_id}/balances", response_model=list[BalanceOut])
+async def get_balances(group_id: int, db: AsyncSession = Depends(get_db)):
+    try:
+        return await GroupService(db).balances(group_id)
     except GroupNotFoundError:
         raise HTTPException(status_code=404, detail="grupo não existe")
 

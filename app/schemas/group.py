@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from pydantic import BaseModel
 
 
@@ -18,3 +20,9 @@ class GroupOut(BaseModel):
     id: int
     nome: str
     membros: list[MemberOut]
+
+
+class BalanceOut(BaseModel):
+    user_id: int
+    nome: str
+    saldo: Decimal

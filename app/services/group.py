@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Group
 from app.repositories import GroupRepository, MemberAlreadyExistsError, UserRepository
-from app.schemas import GroupCreate, GroupOut, MemberAdd, MemberOut
+from app.schemas import BalanceOut, GroupCreate, GroupOut, MemberAdd, MemberOut
 
 
 class GroupNotFoundError(Exception):
@@ -33,6 +33,13 @@ class GroupService:
         if group is None:
             raise GroupNotFoundError
         return self._to_out(group)
+
+    async def balances(self, group_id: int) -> list[BalanceOut]:
+        # Leitura pura: sem begin(), como o get.
+        if not await self.groups.exists(group_id):
+            raise GroupNotFoundError
+        linhas = await self.groups.balances(group_id)
+        return [BalanceOut(user_id=u, nome=nome, saldo=saldo) for u, nome, saldo in linhas]
 
     async def add_member(self, group_id: int, data: MemberAdd) -> MemberOut:
         async with self.db.begin():

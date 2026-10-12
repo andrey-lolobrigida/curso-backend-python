@@ -40,3 +40,31 @@ uv run python chapters/05-relacoes-e-dinheiro/bancada/float.py
 ```
 
 O desastre 1 soma num laço de propósito. O `sum()` do Python 3.12 compensa o erro e daria `1.0`.
+
+## `saldos.py` — lição 09
+
+Três jeitos de calcular o saldo de cada membro, medidos lado a lado: (a) Python ingênuo, com
+duas consultas por membro; (b) Python carregando tudo, com `selectinload(Expense.partes)`;
+(c) o banco somando, com a consulta do app (`GroupRepository.balances`). Cada um roda 3 vezes,
+numa sessão nova, e imprime consultas, linhas trazidas para o Python e tempo. No fim, o script
+confere que os três dão o mesmo resultado.
+
+> **Atenção:** o script escreve no banco de dev. Ele cria 10 usuários
+> (`saldos01@bancada-l09.fairfare.dev` a `saldos10@...`), o grupo
+> "bancada/saldos.py (lição 09)" e N despesas divididas entre os 10. No fim, apaga tudo isso.
+> A limpeza só mira o que o script cria: grupos com esse nome cujos membros são todos
+> usuários da bancada, e usuários da bancada que nada mais referencia. Se uma rodada morrer
+> no meio, a próxima limpa a sobra. As sequências de id não voltam: os ids gastos ficam
+> como buracos em `users`, `groups` e `expenses`. Sequência não é transacional, e
+> devolvê-la à mão poderia fazer um insert concorrente reusar um id já em uso.
+
+```bash
+# 2000 despesas (padrão)
+uv run python chapters/05-relacoes-e-dinheiro/bancada/saldos.py
+
+# 20000 despesas: 200 mil linhas de partes
+uv run python chapters/05-relacoes-e-dinheiro/bancada/saldos.py --despesas 20000
+```
+
+O (c) chama o repository direto, então conta **1** consulta. Pelo endpoint são 2: o service
+confere antes se o grupo existe. É o número que o guardião dos testes cobra.

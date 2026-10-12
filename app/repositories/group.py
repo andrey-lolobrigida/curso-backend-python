@@ -1,9 +1,9 @@
-from sqlalchemy import select
+from sqlalchemy import Numeric, cast, func, select, union_all
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.models import Group, GroupMember
+from app.models import Expense, ExpenseShare, Group, GroupMember, User
 
 
 class MemberAlreadyExistsError(Exception):
@@ -48,3 +48,29 @@ class GroupRepository:
             select(GroupMember.user_id).where(GroupMember.group_id == group_id)
         )
         return set(resultado)
+
+    async def balances(self, group_id: int):
+        # Cada movimento de dinheiro vira uma linha (user_id, valor): quem pagou ganha,
+        # quem consumiu perde. O saldo é a soma por membro (lição 09).
+        movimentos = union_all(
+            select(Expense.paid_by.label("user_id"), Expense.valor).where(
+                Expense.group_id == group_id
+            ),
+            select(ExpenseShare.user_id, (-ExpenseShare.valor).label("valor"))
+            .join(Expense, Expense.id == ExpenseShare.expense_id)
+            .where(Expense.group_id == group_id),
+        ).cte("movimentos")
+        stmt = (
+            select(
+                GroupMember.user_id,
+                User.nome,
+                # Membro sem movimento: o SUM dá NULL, e o 0 sem casas viraria "0" no JSON.
+                cast(func.coalesce(func.sum(movimentos.c.valor), 0), Numeric(20, 2)).label("saldo"),
+            )
+            .join(User, User.id == GroupMember.user_id)
+            .outerjoin(movimentos, movimentos.c.user_id == GroupMember.user_id)
+            .where(GroupMember.group_id == group_id)
+            .group_by(GroupMember.user_id, User.nome)
+            .order_by(GroupMember.user_id)
+        )
+        return (await self.db.execute(stmt)).all()
