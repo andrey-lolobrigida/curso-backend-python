@@ -3,6 +3,7 @@ from app.schemas.dinheiro import Dinheiro
 from app.schemas.expense import ExpenseCreate, ExpenseOut, ShareOut
 from app.schemas.group import BalanceOut, GroupCreate, GroupOut, MemberAdd, MemberOut
 from app.schemas.resource import ResourceCreate, ResourceOut
+from app.schemas.settlement import SettlementCreate, SettlementOut
 from app.schemas.user import UserCreate, UserOut
 
 __all__ = [
@@ -18,6 +19,8 @@ __all__ = [
     "MemberOut",
     "ResourceCreate",
     "ResourceOut",
+    "SettlementCreate",
+    "SettlementOut",
     "ShareOut",
     "UserCreate",
     "UserOut",

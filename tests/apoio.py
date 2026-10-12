@@ -59,3 +59,10 @@ async def cria_despesa(client, group_id, paid_by, valor, participantes=None, des
     if participantes is not None:
         corpo["participantes"] = participantes
     return await client.post(f"/groups/{group_id}/expenses", json=corpo)
+
+
+async def quita(client, group_id, de, para, valor):
+    return await client.post(
+        f"/groups/{group_id}/settlements",
+        json={"de_user_id": de, "para_user_id": para, "valor": valor},
+    )

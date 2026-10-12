@@ -12,6 +12,7 @@ from app.services.group import (
     GroupService,
     UserNotFoundError,
 )
+from app.services.settlement import SettlementExceedsDebtError, SettlementService
 
 __all__ = [
     "AlreadyMemberError",
@@ -24,5 +25,7 @@ __all__ = [
     "GroupService",
     "NotAMemberError",
     "RelatedNotFoundError",
+    "SettlementExceedsDebtError",
+    "SettlementService",
     "UserNotFoundError",
 ]

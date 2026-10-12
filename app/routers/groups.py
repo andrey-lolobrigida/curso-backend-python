@@ -10,6 +10,8 @@ from app.schemas import (
     GroupOut,
     MemberAdd,
     MemberOut,
+    SettlementCreate,
+    SettlementOut,
 )
 from app.services import (
     AlreadyMemberError,
@@ -17,6 +19,8 @@ from app.services import (
     GroupNotFoundError,
     GroupService,
     NotAMemberError,
+    SettlementExceedsDebtError,
+    SettlementService,
     UserNotFoundError,
 )
 
@@ -64,3 +68,17 @@ async def create_expense(group_id: int, data: ExpenseCreate, db: AsyncSession = 
         raise HTTPException(status_code=404, detail="grupo não existe")
     except NotAMemberError:
         raise HTTPException(status_code=422, detail="pagador e participantes precisam ser membros")
+
+
+@router.post("/{group_id}/settlements", status_code=201, response_model=SettlementOut)
+async def create_settlement(
+    group_id: int, data: SettlementCreate, db: AsyncSession = Depends(get_db)
+):
+    try:
+        return await SettlementService(db).create(group_id, data)
+    except GroupNotFoundError:
+        raise HTTPException(status_code=404, detail="grupo não existe")
+    except NotAMemberError:
+        raise HTTPException(status_code=422, detail="quem paga e quem recebe precisam ser membros")
+    except SettlementExceedsDebtError:
+        raise HTTPException(status_code=409, detail="a quitação passa do que se deve")

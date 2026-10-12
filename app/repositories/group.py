@@ -5,7 +5,8 @@ from sqlalchemy.orm import selectinload
 
 from app.models import Group, GroupMember
 
-# O saldo de cada membro: tudo o que pagou, menos tudo o que consumiu (lição 10).
+# O saldo de cada membro: tudo o que pagou, menos tudo o que consumiu (lição 10),
+# mais as quitações que fez, menos as que recebeu (lição 11).
 # Escrita em SQL porque é um relatório: lê-se de cima para baixo, cola-se no psql,
 # passa no EXPLAIN. Os :parâmetros vão separados do texto. Nunca f-string.
 SALDOS = text("""
@@ -18,6 +19,10 @@ SALDOS = text("""
           FROM expense_shares p
           JOIN expenses e ON e.id = p.expense_id
          WHERE e.group_id = :grupo
+        UNION ALL
+        SELECT de_user_id, valor FROM settlements WHERE group_id = :grupo
+        UNION ALL
+        SELECT para_user_id, -valor FROM settlements WHERE group_id = :grupo
     )
     SELECT m.user_id, u.nome, CAST(COALESCE(SUM(mv.valor), 0) AS NUMERIC(20, 2)) AS saldo
       FROM group_members m
@@ -74,3 +79,15 @@ class GroupRepository:
 
     async def balances(self, group_id: int):
         return (await self.db.execute(SALDOS, {"grupo": group_id})).all()
+
+    async def lock_members(self, group_id: int, user_ids: list[int]) -> list[GroupMember]:
+        # Tranca as linhas de quem paga e de quem recebe até o fim da transação.
+        # SEMPRE em ordem de user_id: quem tranca na mesma ordem nunca forma um ciclo,
+        # e sem ciclo não há deadlock (lição 11; capítulo 4, SOLUTIONS do bloco 3).
+        stmt = (
+            select(GroupMember)
+            .where(GroupMember.group_id == group_id, GroupMember.user_id.in_(user_ids))
+            .order_by(GroupMember.user_id)
+            .with_for_update()
+        )
+        return list(await self.db.scalars(stmt))

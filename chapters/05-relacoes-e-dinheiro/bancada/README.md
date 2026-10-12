@@ -90,3 +90,28 @@ uv run python chapters/05-relacoes-e-dinheiro/bancada/injecao.py
 ```
 
 A f-string do script é o exemplo do que nunca fazer. Ela está lá para ser vista quebrando.
+
+## `quitacao.py` — lição 11
+
+A corrida das quitações, pelo app de verdade. É o irmão do `corrida.py` do capítulo 4, com
+dinheiro no lugar da quadra. Cada rodada monta, pela API, um grupo novo com Ana, Bruno e
+Carla e uma despesa de 100.00 paga pela Ana (Bruno fica devendo 33.33). Depois dispara N
+quitações iguais ao mesmo tempo: Bruno paga 30.00 à Ana. Só uma cabe na dívida. A rodada
+imprime os status e o saldo final do Bruno, e o fim conta em quantas rodadas ele pagou além.
+
+Cada request leva um `X-Forwarded-For` diferente, como no `corrida.py`, para o rate limiter
+ver N clientes.
+
+> **Atenção:** o script escreve no banco de dev. Por rodada, ele cria 3 usuários (e-mails em
+> `@bancada-l11.fairfare.dev`), o grupo "bancada/quitacao.py (lição 11)", os membros, uma
+> despesa e as quitações. Ele apaga tudo isso no começo e no fim. A limpeza só mira o que o
+> script cria: grupos com esse nome cujos membros são todos usuários da bancada, e usuários
+> da bancada que nada mais referencia. As sequências de id não voltam, como no `saldos.py`.
+
+```bash
+uv run uvicorn app.main:app --port 8000
+
+# em outro terminal
+uv run python chapters/05-relacoes-e-dinheiro/bancada/quitacao.py --n 5 --rodadas 10
+uv run python chapters/05-relacoes-e-dinheiro/bancada/quitacao.py --n 10 --rodadas 10
+```

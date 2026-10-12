@@ -55,7 +55,7 @@ async def engine_de_teste():
         # para você olhar com o psql.
         await conn.execute(
             text(
-                "TRUNCATE users, resources, bookings, groups, group_members, expenses, expense_shares RESTART IDENTITY CASCADE"
+                "TRUNCATE users, resources, bookings, groups, group_members, expenses, expense_shares, settlements RESTART IDENTITY CASCADE"
             )
         )
     yield engine
