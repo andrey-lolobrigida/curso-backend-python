@@ -2,9 +2,11 @@ from datetime import datetime
 
 from sqlalchemy import CheckConstraint, DateTime, ForeignKey, column, func
 from sqlalchemy.dialects.postgresql import ExcludeConstraint
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
+from app.models.resource import Resource
+from app.models.user import User
 
 
 class Booking(Base):
@@ -29,3 +31,7 @@ class Booking(Base):
     # timestamptz: um instante na linha do tempo, não um horário de parede (lição 04).
     starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     ends_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+    # A FK diz ao banco que a linha existe. A relação diz ao Python como chegar nela (lição 01).
+    user: Mapped[User] = relationship()
+    resource: Mapped[Resource] = relationship()
