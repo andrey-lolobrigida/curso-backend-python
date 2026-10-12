@@ -3,6 +3,7 @@ from datetime import datetime
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.models import Booking
 
@@ -33,6 +34,10 @@ class BookingRepository:
                 raise BookingOverlapError from erro
             raise
         await self.db.refresh(booking)
+        # As relações não vêm no refresh de colunas: pedidas por nome, explicitamente.
+        # (Só o segundo refresh recarregaria SÓ user e resource, e o starts_at ficaria
+        # com o fuso de entrada em vez do instante gravado. Lição 03.)
+        await self.db.refresh(booking, ["user", "resource"])
         return booking
 
     async def get(self, booking_id: int) -> Booking | None:
@@ -43,7 +48,9 @@ class BookingRepository:
         await self.db.commit()
 
     async def list_all(self) -> list[Booking]:
-        resultado = await self.db.scalars(select(Booking))
+        # Uma consulta para as reservas, mais uma por relação: 3, com 5 ou 5000 reservas.
+        stmt = select(Booking).options(selectinload(Booking.user), selectinload(Booking.resource))
+        resultado = await self.db.scalars(stmt)
         return list(resultado)
 
     async def find_overlapping(

@@ -33,5 +33,6 @@ class Booking(Base):
     ends_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
     # A FK diz ao banco que a linha existe. A relação diz ao Python como chegar nela (lição 01).
-    user: Mapped[User] = relationship()
-    resource: Mapped[Resource] = relationship()
+    # lazy="raise": acesso a relação não carregada é erro na hora, nunca I/O escondido (lição 03).
+    user: Mapped[User] = relationship(lazy="raise")
+    resource: Mapped[Resource] = relationship(lazy="raise")

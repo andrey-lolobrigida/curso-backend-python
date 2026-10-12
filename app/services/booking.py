@@ -52,7 +52,7 @@ class BookingService:
             # A verificação acima é o caminho rápido e educado; a garantia é do banco.
             # Quem perdeu a corrida passou pela verificação e foi barrado aqui.
             raise BookingConflictError
-        return await self._to_out(booking)
+        return self._to_out(booking)
 
     async def cancel(self, booking_id: int) -> None:
         booking = await self.bookings.get(booking_id)
@@ -63,17 +63,15 @@ class BookingService:
         await self.bookings.delete(booking)
 
     async def list_all(self) -> list[BookingOut]:
-        return [await self._to_out(b) for b in await self.bookings.list_all()]
+        return [self._to_out(b) for b in await self.bookings.list_all()]
 
-    async def _to_out(self, booking: Booking) -> BookingOut:
-        user = await self.users.get(booking.user_id)
-        resource = await self.resources.get(booking.resource_id)
+    def _to_out(self, booking: Booking) -> BookingOut:
         return BookingOut(
             id=booking.id,
             user_id=booking.user_id,
             resource_id=booking.resource_id,
             starts_at=booking.starts_at,
             ends_at=booking.ends_at,
-            user_nome=user.nome,
-            resource_nome=resource.nome,
+            user_nome=booking.user.nome,
+            resource_nome=booking.resource.nome,
         )

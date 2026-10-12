@@ -46,7 +46,7 @@ def banco_de_testes():
 
 
 @pytest.fixture()
-async def client():
+async def engine_de_teste():
     # Uma engine por teste: conexões do asyncpg pertencem ao event loop que as criou,
     # e o pytest-asyncio dá um loop novo a cada teste.
     engine = create_async_engine(TEST_URL)
@@ -54,7 +54,13 @@ async def client():
         # Limpa ANTES, não depois: se um teste falhar, o estado dele fica no banco
         # para você olhar com o psql.
         await conn.execute(text("TRUNCATE users, resources, bookings RESTART IDENTITY CASCADE"))
-    TestingSession = async_sessionmaker(bind=engine, expire_on_commit=False)
+    yield engine
+    await engine.dispose()
+
+
+@pytest.fixture()
+async def client(engine_de_teste):
+    TestingSession = async_sessionmaker(bind=engine_de_teste, expire_on_commit=False)
 
     async def override_get_db():
         async with TestingSession() as db:
@@ -72,4 +78,3 @@ async def client():
     async with AsyncClient(transport=transport, base_url="http://test") as test_client:
         yield test_client
     fastapi_app.dependency_overrides.clear()
-    await engine.dispose()
