@@ -2,8 +2,15 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.schemas import GroupCreate, GroupOut, MemberAdd, MemberOut
-from app.services import AlreadyMemberError, GroupNotFoundError, GroupService, UserNotFoundError
+from app.schemas import ExpenseCreate, ExpenseOut, GroupCreate, GroupOut, MemberAdd, MemberOut
+from app.services import (
+    AlreadyMemberError,
+    ExpenseService,
+    GroupNotFoundError,
+    GroupService,
+    NotAMemberError,
+    UserNotFoundError,
+)
 
 router = APIRouter(prefix="/groups", tags=["groups"])
 
@@ -31,3 +38,13 @@ async def add_member(group_id: int, data: MemberAdd, db: AsyncSession = Depends(
         raise HTTPException(status_code=404, detail="usuário não existe")
     except AlreadyMemberError:
         raise HTTPException(status_code=409, detail="usuário já é membro do grupo")
+
+
+@router.post("/{group_id}/expenses", status_code=201, response_model=ExpenseOut)
+async def create_expense(group_id: int, data: ExpenseCreate, db: AsyncSession = Depends(get_db)):
+    try:
+        return await ExpenseService(db).create(group_id, data)
+    except GroupNotFoundError:
+        raise HTTPException(status_code=404, detail="grupo não existe")
+    except NotAMemberError:
+        raise HTTPException(status_code=422, detail="pagador e participantes precisam ser membros")

@@ -19,12 +19,13 @@ class AlreadyMemberError(Exception):
 
 class GroupService:
     def __init__(self, db: AsyncSession):
-        self.db = db  # a lição 08 abre transações com ele
+        self.db = db
         self.groups = GroupRepository(db)
         self.users = UserRepository(db)
 
     async def create(self, data: GroupCreate) -> GroupOut:
-        group = await self.groups.create(data.nome)
+        async with self.db.begin():
+            group = await self.groups.create(data.nome)
         return GroupOut(id=group.id, nome=group.nome, membros=[])
 
     async def get(self, group_id: int) -> GroupOut:
@@ -34,15 +35,16 @@ class GroupService:
         return self._to_out(group)
 
     async def add_member(self, group_id: int, data: MemberAdd) -> MemberOut:
-        if not await self.groups.exists(group_id):
-            raise GroupNotFoundError
-        user = await self.users.get(data.user_id)
-        if user is None:
-            raise UserNotFoundError
-        try:
-            await self.groups.add_member(group_id, data.user_id)
-        except MemberAlreadyExistsError:
-            raise AlreadyMemberError
+        async with self.db.begin():
+            if not await self.groups.exists(group_id):
+                raise GroupNotFoundError
+            user = await self.users.get(data.user_id)
+            if user is None:
+                raise UserNotFoundError
+            try:
+                await self.groups.add_member(group_id, data.user_id)
+            except MemberAlreadyExistsError:
+                raise AlreadyMemberError
         return MemberOut(user_id=user.id, nome=user.nome)
 
     def _to_out(self, group: Group) -> GroupOut:

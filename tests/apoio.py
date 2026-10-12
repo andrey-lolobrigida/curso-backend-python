@@ -52,3 +52,10 @@ async def cria_grupo(client, nome="Viagem"):
 
 async def adiciona_membro(client, group_id, user_id):
     return await client.post(f"/groups/{group_id}/members", json={"user_id": user_id})
+
+
+async def cria_despesa(client, group_id, paid_by, valor, participantes=None, descricao="Jantar"):
+    corpo = {"paid_by": paid_by, "descricao": descricao, "valor": valor}
+    if participantes is not None:
+        corpo["participantes"] = participantes
+    return await client.post(f"/groups/{group_id}/expenses", json=corpo)

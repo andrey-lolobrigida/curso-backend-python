@@ -11,8 +11,10 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 @router.post("", status_code=201, response_model=UserOut)
 async def create_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
+    # Sem service, quem diz o que é "uma operação" é o router (lição 08).
     try:
-        return await UserRepository(db).create(nome=user.nome, email=user.email)
+        async with db.begin():
+            return await UserRepository(db).create(nome=user.nome, email=user.email)
     except IntegrityError:
         raise HTTPException(status_code=409, detail="email já cadastrado")
 

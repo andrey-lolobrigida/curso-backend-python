@@ -17,7 +17,7 @@ class GroupRepository:
     async def create(self, nome: str) -> Group:
         group = Group(nome=nome)
         self.db.add(group)
-        await self.db.commit()
+        await self.db.flush()
         await self.db.refresh(group)
         return group
 
@@ -37,9 +37,9 @@ class GroupRepository:
         member = GroupMember(group_id=group_id, user_id=user_id)
         self.db.add(member)
         try:
-            await self.db.commit()
+            await self.db.flush()
         except IntegrityError as erro:
-            await self.db.rollback()
+            # Sem rollback aqui: quem desfaz a transação é o begin() do service.
             raise MemberAlreadyExistsError from erro
         return member
 

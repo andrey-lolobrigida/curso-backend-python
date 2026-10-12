@@ -10,7 +10,9 @@ router = APIRouter(prefix="/resources", tags=["resources"])
 
 @router.post("", status_code=201, response_model=ResourceOut)
 async def create_resource(resource: ResourceCreate, db: AsyncSession = Depends(get_db)):
-    return await ResourceRepository(db).create(nome=resource.nome, tipo=resource.tipo)
+    # Sem service, quem diz o que é "uma operação" é o router (lição 08).
+    async with db.begin():
+        return await ResourceRepository(db).create(nome=resource.nome, tipo=resource.tipo)
 
 
 @router.get("", response_model=list[ResourceOut])

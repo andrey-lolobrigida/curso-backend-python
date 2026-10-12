@@ -11,7 +11,9 @@ class ResourceRepository:
     async def create(self, nome: str, tipo: str) -> Resource:
         resource = Resource(nome=nome, tipo=tipo)
         self.db.add(resource)
-        await self.db.commit()
+        await self.db.flush()
+        # O tipo tem server_default: sem o refresh, o atributo fica expirado, e lê-lo
+        # seria I/O escondido.
         await self.db.refresh(resource)
         return resource
 

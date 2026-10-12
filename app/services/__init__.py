@@ -5,6 +5,7 @@ from app.services.booking import (
     BookingService,
     RelatedNotFoundError,
 )
+from app.services.expense import ExpenseService, NotAMemberError
 from app.services.group import (
     AlreadyMemberError,
     GroupNotFoundError,
@@ -18,8 +19,10 @@ __all__ = [
     "BookingInPastError",
     "BookingNotFoundError",
     "BookingService",
+    "ExpenseService",
     "GroupNotFoundError",
     "GroupService",
+    "NotAMemberError",
     "RelatedNotFoundError",
     "UserNotFoundError",
 ]

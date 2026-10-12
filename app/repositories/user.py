@@ -11,8 +11,9 @@ class UserRepository:
     async def create(self, nome: str, email: str) -> User:
         user = User(nome=nome, email=email)
         self.db.add(user)
-        await self.db.commit()
-        await self.db.refresh(user)
+        # flush: manda o INSERT dentro da transação de quem chamou. Quem comita é o service
+        # (ou o router, quando não há service). Lição 08.
+        await self.db.flush()
         return user
 
     async def get(self, user_id: int) -> User | None:

@@ -27,9 +27,9 @@ class BookingRepository:
         )
         self.db.add(booking)
         try:
-            await self.db.commit()
+            await self.db.flush()
         except IntegrityError as erro:
-            await self.db.rollback()
+            # A violação chega já no flush. Quem desfaz a transação é o begin() do service.
             if getattr(erro.orig, "sqlstate", None) == EXCLUSION_VIOLATION:
                 raise BookingOverlapError from erro
             raise
@@ -45,7 +45,7 @@ class BookingRepository:
 
     async def delete(self, booking: Booking) -> None:
         await self.db.delete(booking)
-        await self.db.commit()
+        await self.db.flush()
 
     async def list_all(self) -> list[Booking]:
         # Uma consulta para as reservas, mais uma por relação: 3, com 5 ou 5000 reservas.
