@@ -31,8 +31,8 @@ Formato de cada entrada:
 
   | # | Onde | O quê | Resolvido no |
   |---|---|---|---|
-  | 1 | `app/services/booking.py::BookingService.create` | Verifica conflito de horário e **depois** insere, sem transação nem lock. Duas requests simultâneas para o mesmo horário passam as duas pela verificação e gravam as duas (*check-then-act*). | capítulo 4 |
-  | 2 | `app/services/booking.py::_to_out` | Cada reserva listada busca usuário e recurso em consultas separadas: `GET /bookings` faz **2N+1** idas ao banco (problema N+1). | capítulo 5 |
+  | 1 | `app/services/booking.py::BookingService.create` | Verifica conflito de horário e **depois** insere, sem transação nem lock. Duas requests simultâneas para o mesmo horário passam as duas pela verificação e gravam as duas (*check-then-act*). | capítulo 4, lições 10 e 11 (tags `v-cap04-licao10` e `v-cap04-licao11`) |
+  | 2 | `app/services/booking.py::_to_out` | Cada reserva listada busca usuário e recurso em consultas separadas: `GET /bookings` faz **2N+1** idas ao banco (problema N+1). | capítulo 5, lição 03 (tag `v-cap05-licao03`) |
   | 3 | todas as rotas | Não existe autenticação. `POST /bookings` aceita qualquer `user_id`; qualquer pessoa reserva ou cancela no nome de qualquer outra. | capítulo 6 |
 
 - **Correção:** **o código não muda.** Consertar qualquer um dos três exigiria conceitos que o curso ainda não ensinou (transações, eager loading, autenticação) — e ensiná-los fora de hora é pior que declará-los. O que mudou é que agora eles estão escritos: aqui, numa seção nova do README do capítulo 1, e em detalhe na lição 11 do capítulo 2 (`chapters/02-python-assincrono/theory/11-o-que-ainda-nao-resolve.md`), com o mecanismo de cada um e o que o capítulo 2 mudou neles.

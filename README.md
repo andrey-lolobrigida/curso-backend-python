@@ -49,6 +49,7 @@ Escritos até agora:
 | 2 | [Python assíncrono](chapters/02-python-assincrono/README.md) | Event loop, bloqueio, o GIL, pool de conexões — e como medir tudo isso |
 | 3 | [Entre o cliente e o router](chapters/03-entre-o-cliente-e-o-router/README.md) | O que o uvicorn faz, middleware, CORS, rate limiting, proxy reverso, TLS, workers |
 | 4 | [O banco de dados, de verdade](chapters/04-o-banco-de-dados-de-verdade/README.md) | PostgreSQL, pool de conexões, índices e EXPLAIN, transações, isolamento, locking, e a regra que mora no banco |
+| 5 | [Relações e dinheiro](chapters/05-relacoes-e-dinheiro/README.md) | Relações e o fim do N+1, muitos-para-muitos, dinheiro em `Decimal`, quem comita, saldos somados no banco, SQL puro, e quitações com cadeado |
 
 ## A stack
 
