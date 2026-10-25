@@ -4,9 +4,11 @@ from contextlib import contextmanager
 
 from sqlalchemy import event
 
+SENHA_DE_TESTE = "senha-de-teste"
 
-async def cria_usuario(client, email="ana@example.com"):
-    resp = await client.post("/users", json={"nome": "Ana", "email": email})
+
+async def cria_usuario(client, email="ana@example.com", nome="Ana", senha=SENHA_DE_TESTE):
+    resp = await client.post("/users", json={"nome": nome, "email": email, "senha": senha})
     assert resp.status_code == 201
     return resp.json()
 

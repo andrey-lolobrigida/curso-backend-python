@@ -8,8 +8,8 @@ class UserRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def create(self, nome: str, email: str) -> User:
-        user = User(nome=nome, email=email)
+    async def create(self, nome: str, email: str, senha_hash: str) -> User:
+        user = User(nome=nome, email=email, senha_hash=senha_hash)
         self.db.add(user)
         # flush: manda o INSERT dentro da transação de quem chamou. Quem comita é o service
         # (ou o router, quando não há service). Lição 08.

@@ -8,6 +8,7 @@ gente veio medir.
 | Script | Lição | Comando | O que mostra |
 |---|---|---|---|
 | `senhas.py` | 02 | `uv run python chapters/06-autenticacao-e-seguranca/bancada/senhas.py` | quatro jeitos de guardar senha (texto puro, sha256, sha256 com sal, scrypt) e o ataque de dicionário contra cada um, com sha256 por segundo e ms por scrypt medidos |
+| `argon2_no_loop.py` | 03 | `uv run python chapters/06-autenticacao-e-seguranca/bancada/argon2_no_loop.py` | quanto custa um `hash` e um `verify` (relógio × CPU); oito `verify` do argon2 chamados no loop × numa thread, com um batimento medindo quanto o loop travou; e 20 `verify` em sequência × em 4 threads, para ver o argon2 soltar o GIL |
 
 *(A tabela cresce junto com o capítulo.)*
 
@@ -15,3 +16,8 @@ O `senhas.py` é só biblioteca padrão: não fala com o banco nem com o app, e 
 compose de pé. Os sais e os hashes do ato 3 mudam a cada execução. Os tempos são de um
 núcleo só, chamando o `hashlib` (que roda em C) de um laço Python: os seus vão ser outros, e o
 que importa é a distância entre os esquemas.
+
+O `argon2_no_loop.py` também não fala com o banco nem com o app. Ele usa o `argon2-cffi`, que
+já vem com o projeto desde a lição 03. Os atrasos dançam de uma rodada para outra: o que
+importa é a ordem de grandeza, centenas de ms com o `verify` no loop e poucas dezenas (ou
+menos) com ele numa thread.

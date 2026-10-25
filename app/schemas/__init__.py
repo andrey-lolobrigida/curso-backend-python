@@ -4,7 +4,7 @@ from app.schemas.expense import ExpenseCreate, ExpenseOut, ShareOut
 from app.schemas.group import BalanceOut, GroupCreate, GroupOut, MemberAdd, MemberOut
 from app.schemas.resource import ResourceCreate, ResourceOut
 from app.schemas.settlement import SettlementCreate, SettlementOut
-from app.schemas.user import UserCreate, UserOut
+from app.schemas.user import UserCreate, UserMeOut, UserOut
 
 __all__ = [
     "BalanceOut",
@@ -23,5 +23,6 @@ __all__ = [
     "SettlementOut",
     "ShareOut",
     "UserCreate",
+    "UserMeOut",
     "UserOut",
 ]

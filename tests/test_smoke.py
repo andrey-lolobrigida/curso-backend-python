@@ -1,4 +1,4 @@
-from tests.apoio import cria_recurso, cria_reserva, cria_usuario
+from tests.apoio import SENHA_DE_TESTE, cria_recurso, cria_reserva, cria_usuario
 
 
 async def test_cria_e_busca_usuario(client):
@@ -9,13 +9,18 @@ async def test_cria_e_busca_usuario(client):
 
 
 async def test_email_invalido_e_422(client):
-    resp = await client.post("/users", json={"nome": "Ana", "email": "sem-arroba"})
+    resp = await client.post(
+        "/users", json={"nome": "Ana", "email": "sem-arroba", "senha": SENHA_DE_TESTE}
+    )
     assert resp.status_code == 422
 
 
 async def test_email_duplicado_e_409(client):
     await cria_usuario(client)
-    resp = await client.post("/users", json={"nome": "Outra Ana", "email": "ana@example.com"})
+    resp = await client.post(
+        "/users",
+        json={"nome": "Outra Ana", "email": "ana@example.com", "senha": SENHA_DE_TESTE},
+    )
     assert resp.status_code == 409
 
 
