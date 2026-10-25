@@ -50,6 +50,7 @@ Escritos até agora:
 | 3 | [Entre o cliente e o router](chapters/03-entre-o-cliente-e-o-router/README.md) | O que o uvicorn faz, middleware, CORS, rate limiting, proxy reverso, TLS, workers |
 | 4 | [O banco de dados, de verdade](chapters/04-o-banco-de-dados-de-verdade/README.md) | PostgreSQL, pool de conexões, índices e EXPLAIN, transações, isolamento, locking, e a regra que mora no banco |
 | 5 | [Relações e dinheiro](chapters/05-relacoes-e-dinheiro/README.md) | Relações e o fim do N+1, muitos-para-muitos, dinheiro em `Decimal`, quem comita, saldos somados no banco, SQL puro, e quitações com cadeado |
+| 6 | [Autenticação e segurança](chapters/06-autenticacao-e-seguranca/README.md) | Senha em argon2, login com token opaco, logout e expiração, o JWT por dentro, sessão × JWT, o crachá no browser e o CORS, e permissões: o dono da reserva e o membro do grupo |
 
 ## A stack
 

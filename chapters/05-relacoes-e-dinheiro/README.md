@@ -115,7 +115,13 @@ docker compose up -d --wait
 uv run alembic upgrade head
 ```
 
-Os dois caminhos têm preço. O `downgrade` apaga o domínio de despesas. O `down -v` apaga tudo, inclusive os usuários e as reservas. O `fairfare_test` não precisa de nada disso: a suíte recria as tabelas dos models a cada rodada.
+Os dois caminhos têm preço. O `downgrade` apaga o domínio de despesas. O `down -v` apaga tudo, inclusive os usuários e as reservas.
+
+O `fairfare_test` tem a mesma pegadinha. A suíte recria as tabelas a cada rodada, mas só as que os models daquele commit conhecem. Volte para antes da lição 04, e o `drop_all` tenta derrubar `users` com os grupos e as despesas ainda pendurados nela: `cannot drop table users because other objects depend on it`, em todo teste. Antes de rodar a suíte num commit mais antigo, jogue o banco de teste fora. O `conftest.py` o recria na rodada seguinte:
+
+```bash
+docker compose exec postgres psql -U fairfare -d postgres -c 'DROP DATABASE fairfare_test'
+```
 
 ## Os exercícios
 

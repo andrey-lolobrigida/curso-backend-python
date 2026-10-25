@@ -141,6 +141,6 @@ Onde houver código quebrado de propósito — e os exercícios deste capítulo 
 
 ## O que você deve conseguir fazer agora
 
-- Listar os **três** problemas do rate limiter, apontar cada um no arquivo, e dizer em que capítulo cada um morre (dois no 6, um no 10).
+- Listar os **três** problemas do rate limiter, apontar cada um no arquivo, e dizer em que capítulo cada um morre (dois no 7, um no 11).
 - Explicar por que o `X-Forwarded-For` da lição 08 e o `--workers 4` da lição 11 quebram o mesmo middleware por motivos completamente diferentes.
 - Para qualquer limitação desta lista, dizer onde ela está e em que capítulo ela morre — e reconhecer as poucas que são **ressalva** de medição ou de bancada, que não morrem em capítulo nenhum. Sem consultar a lista.
