@@ -1,3 +1,4 @@
+from app.schemas.auth import LoginIn, TokenOut
 from app.schemas.booking import BookingCreate, BookingOut
 from app.schemas.dinheiro import Dinheiro
 from app.schemas.expense import ExpenseCreate, ExpenseOut, ShareOut
@@ -15,6 +16,7 @@ __all__ = [
     "ExpenseOut",
     "GroupCreate",
     "GroupOut",
+    "LoginIn",
     "MemberAdd",
     "MemberOut",
     "ResourceCreate",
@@ -22,6 +24,7 @@ __all__ = [
     "SettlementCreate",
     "SettlementOut",
     "ShareOut",
+    "TokenOut",
     "UserCreate",
     "UserMeOut",
     "UserOut",

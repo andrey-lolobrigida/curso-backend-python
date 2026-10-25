@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.middleware.rate_limit import RateLimitMiddleware
-from app.routers import bookings, groups, resources, users
+from app.routers import auth, bookings, groups, resources, users
 
 app = FastAPI(title="FairFare")
 
@@ -25,3 +25,4 @@ app.include_router(users.router)
 app.include_router(resources.router)
 app.include_router(bookings.router)
 app.include_router(groups.router)
+app.include_router(auth.router)

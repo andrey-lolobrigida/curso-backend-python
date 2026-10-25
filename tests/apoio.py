@@ -13,6 +13,12 @@ async def cria_usuario(client, email="ana@example.com", nome="Ana", senha=SENHA_
     return resp.json()
 
 
+async def faz_login(client, email, senha=SENHA_DE_TESTE) -> str:
+    resp = await client.post("/auth/login", json={"email": email, "senha": senha})
+    assert resp.status_code == 200
+    return resp.json()["access_token"]
+
+
 async def cria_recurso(client):
     resp = await client.post("/resources", json={"nome": "Quadra 1", "tipo": "quadra"})
     assert resp.status_code == 201

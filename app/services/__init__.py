@@ -1,3 +1,4 @@
+from app.services.auth import AuthService, InvalidCredentialsError
 from app.services.booking import (
     BookingConflictError,
     BookingInPastError,
@@ -16,6 +17,7 @@ from app.services.settlement import SettlementExceedsDebtError, SettlementServic
 
 __all__ = [
     "AlreadyMemberError",
+    "AuthService",
     "BookingConflictError",
     "BookingInPastError",
     "BookingNotFoundError",
@@ -23,6 +25,7 @@ __all__ = [
     "ExpenseService",
     "GroupNotFoundError",
     "GroupService",
+    "InvalidCredentialsError",
     "NotAMemberError",
     "RelatedNotFoundError",
     "SettlementExceedsDebtError",
