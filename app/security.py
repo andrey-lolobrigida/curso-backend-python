@@ -25,6 +25,11 @@ async def confere_senha(senha_hash: str, senha: str) -> bool:
         return False
 
 
+# Um hash de verdade, de uma senha sorteada aqui e jogada fora: ninguém tem essa senha.
+# O login confere contra ele quando a conta não existe, só para gastar o mesmo argon2 (lição 06).
+HASH_FANTASMA = _hasher.hash(secrets.token_urlsafe(32))
+
+
 # Validade fixa, sem renovação: 24 horas depois do login, o crachá vence (lição 04).
 VALIDADE_DA_SESSAO = timedelta(hours=24)
 

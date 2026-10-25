@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.repositories import SessionRepository, UserRepository
-from app.security import confere_senha, hash_token, novo_token
+from app.security import HASH_FANTASMA, confere_senha, hash_token, novo_token
 
 
 class InvalidCredentialsError(Exception):
@@ -21,9 +21,10 @@ class AuthService:
         async with self.db.begin():
             user = await self.users.get_by_email(email)
         # 2. O argon2 fora de transação: ~55 ms de conta sem segurar conexão do pool (lição 03).
-        # Email que não existe e conta sem senha (anterior à lição 03) caem fora ANTES do hash.
-        # Isso responde mais rápido, e o tempo denuncia a conta: é a lição 06.
         if user is None or user.senha_hash is None:
+            # Sem conta (ou sem senha), o argon2 roda mesmo assim, contra o hash fantasma:
+            # o tempo não pode denunciar quem tem conta. O resultado não importa, e é descartado.
+            await confere_senha(HASH_FANTASMA, senha)
             raise InvalidCredentialsError
         if not await confere_senha(user.senha_hash, senha):
             raise InvalidCredentialsError

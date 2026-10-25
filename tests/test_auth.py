@@ -1,5 +1,7 @@
 import hashlib
 import re
+import statistics
+import time
 from datetime import timedelta
 
 import pytest
@@ -106,6 +108,39 @@ async def test_login_recusado_e_sempre_igual(client, engine_de_teste, caso):
     assert resp.status_code == 401
     assert resp.json() == {"detail": "email ou senha inválidos"}
     assert resp.headers["WWW-Authenticate"] == "Bearer"
+
+
+async def cronometra_logins(client, email_sem_hash):
+    """7 logins com um email sem hash para conferir × 7 de senha errada, intercalados.
+
+    Devolve as duas medianas. O ruído da máquina cai nos dois grupos por igual.
+    1 cadastro + 7 + 7 logins = 15 requests, do mesmo IP: cabe nas 20 fichas do balde."""
+    await cria_usuario(client, email="ana@example.com")
+    sem_hash, senha_errada = [], []
+    for _ in range(7):
+        for tempos, email in ((sem_hash, email_sem_hash), (senha_errada, "ana@example.com")):
+            comeco = time.perf_counter()
+            resp = await client.post("/auth/login", json={"email": email, "senha": "outra-senha"})
+            tempos.append(time.perf_counter() - comeco)
+            assert resp.status_code == 401
+    return statistics.median(sem_hash), statistics.median(senha_errada)
+
+
+async def test_login_de_email_inexistente_demora_como_senha_errada(client):
+    # A mensagem igual não basta: o cronômetro também não pode denunciar quem tem conta.
+    inexistente, senha_errada = await cronometra_logins(client, "ninguem@example.com")
+    # Folga de 2x: o argon2 dos dois lados oscila. Sem o hash fantasma, a razão dá ~0,03.
+    assert inexistente >= 0.5 * senha_errada
+
+
+async def test_login_de_conta_sem_senha_demora_como_senha_errada(client, engine_de_teste):
+    # A conta de antes da lição 03 também não tem hash para conferir. Nem ela pode sair rápido.
+    async with engine_de_teste.begin() as conn:
+        await conn.execute(
+            text("INSERT INTO users (nome, email) VALUES ('Velho', 'velho@example.com')")
+        )
+    sem_senha, senha_errada = await cronometra_logins(client, "velho@example.com")
+    assert sem_senha >= 0.5 * senha_errada
 
 
 async def test_dois_logins_duas_sessoes(client, engine_de_teste):
