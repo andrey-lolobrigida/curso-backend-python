@@ -13,12 +13,14 @@ app = FastAPI(title="FairFare")
 app.add_middleware(RateLimitMiddleware, capacidade=20, recarga_por_segundo=5.0)
 
 # A página da bancada mora em http://localhost:8080. Origem explícita: nada de "*".
-# Content-Type já é permitido por padrão; quando a API pedir Authorization (cap. 6),
-# ele entra em allow_headers.
+# Content-Type já é permitido por padrão. O crachá vai no header Authorization, que não
+# está na lista segura: ele precisa estar em allow_headers, senão o preflight leva 400.
+# Sem allow_credentials: o token é um header que o JS põe à mão, não um cookie.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:8080"],
     allow_methods=["GET", "POST", "DELETE"],
+    allow_headers=["Authorization"],
 )
 
 app.include_router(users.router)
