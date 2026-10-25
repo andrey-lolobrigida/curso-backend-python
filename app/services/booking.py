@@ -51,11 +51,15 @@ class BookingService:
                 raise BookingConflictError
         return self._to_out(booking)
 
-    async def cancel(self, booking_id: int) -> None:
+    async def cancel(self, booking_id: int, user: User) -> None:
         async with self.db.begin():
             booking = await self.bookings.get(booking_id)
-            if booking is None:
+            # Reserva de outra pessoa responde igual à que não existe: o mesmo 404. É o contrato
+            # da API para recurso alheio, mostre a listagem o que mostrar (lição 11 do cap. 6).
+            if booking is None or booking.user_id != user.id:
                 raise BookingNotFoundError
+            # Só depois de saber que é sua: o "já começou" responde 409, uma resposta diferente
+            # da do inexistente. Antes da checagem de dono, ele quebraria o contrato do 404.
             if booking.starts_at <= datetime.now(UTC):
                 raise BookingInPastError
             await self.bookings.delete(booking)

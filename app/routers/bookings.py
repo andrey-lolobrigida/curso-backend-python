@@ -38,9 +38,13 @@ async def list_bookings(db: AsyncSession = Depends(get_db)):
 
 
 @router.delete("/{booking_id}", status_code=204)
-async def cancel_booking(booking_id: int, db: AsyncSession = Depends(get_db)):
+async def cancel_booking(
+    booking_id: int,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
     try:
-        await BookingService(db).cancel(booking_id)
+        await BookingService(db).cancel(booking_id, user)
     except BookingNotFoundError:
         raise HTTPException(status_code=404, detail="reserva não existe")
     except BookingInPastError:
