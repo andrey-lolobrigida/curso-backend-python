@@ -1,10 +1,26 @@
-"""Atalhos para montar o cenário dos testes pela API, como um cliente faria."""
+"""Atalhos para montar o cenário dos testes pela API, como um cliente faria.
+
+Uma pessoa = um cliente = um IP: cada pessoa do teste tem o próprio AsyncClient, com o
+próprio crachá no header e o próprio balde no rate limiter, como gente de verdade em
+máquinas diferentes (lição 05 do cap. 6)."""
 
 from contextlib import contextmanager
+from dataclasses import dataclass
 
+from httpx2 import AsyncClient
 from sqlalchemy import event
 
 SENHA_DE_TESTE = "senha-de-teste"
+
+
+@dataclass
+class Pessoa:
+    """Alguém cadastrado e logado. O client já manda o Authorization dela em toda request."""
+
+    id: int
+    nome: str
+    email: str
+    client: AsyncClient
 
 
 async def cria_usuario(client, email="ana@example.com", nome="Ana", senha=SENHA_DE_TESTE):
@@ -25,11 +41,11 @@ async def cria_recurso(client):
     return resp.json()
 
 
-async def cria_reserva(client, user_id, resource_id, starts_at, ends_at):
+async def cria_reserva(client, resource_id, starts_at, ends_at):
+    # Sem user_id: a reserva é de quem está logado no client (lição 05 do cap. 6).
     return await client.post(
         "/bookings",
         json={
-            "user_id": user_id,
             "resource_id": resource_id,
             "starts_at": starts_at,
             "ends_at": ends_at,

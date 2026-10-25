@@ -1,44 +1,47 @@
-from tests.apoio import adiciona_membro, conta_consultas, cria_grupo, cria_usuario
+from tests.apoio import adiciona_membro, conta_consultas, cria_grupo
 
 
-async def test_cria_grupo_vazio(client):
-    grupo = await cria_grupo(client)
+async def test_cria_grupo_vazio(pessoa):
+    ana = await pessoa("Ana")
+    grupo = await cria_grupo(ana.client)
     assert grupo == {"id": 1, "nome": "Viagem", "membros": []}
 
 
-async def test_adiciona_membros_e_busca_grupo(client):
-    ana = await cria_usuario(client)
-    bruno = await cria_usuario(client, email="bruno@example.com")
-    grupo = await cria_grupo(client)
-    assert (await adiciona_membro(client, grupo["id"], bruno["id"])).status_code == 201
-    assert (await adiciona_membro(client, grupo["id"], ana["id"])).status_code == 201
-    resp = await client.get(f"/groups/{grupo['id']}")
+async def test_adiciona_membros_e_busca_grupo(pessoa):
+    ana = await pessoa("Ana")
+    bruno = await pessoa("Bruno")
+    grupo = await cria_grupo(ana.client)
+    assert (await adiciona_membro(ana.client, grupo["id"], bruno.id)).status_code == 201
+    assert (await adiciona_membro(ana.client, grupo["id"], ana.id)).status_code == 201
+    resp = await ana.client.get(f"/groups/{grupo['id']}")
     assert resp.status_code == 200
     # Em ordem de user_id, não de chegada.
-    assert [m["user_id"] for m in resp.json()["membros"]] == [ana["id"], bruno["id"]]
+    assert [m["user_id"] for m in resp.json()["membros"]] == [ana.id, bruno.id]
 
 
-async def test_membro_repetido_e_409(client):
-    ana = await cria_usuario(client)
-    grupo = await cria_grupo(client)
-    await adiciona_membro(client, grupo["id"], ana["id"])
-    assert (await adiciona_membro(client, grupo["id"], ana["id"])).status_code == 409
+async def test_membro_repetido_e_409(pessoa):
+    ana = await pessoa("Ana")
+    grupo = await cria_grupo(ana.client)
+    await adiciona_membro(ana.client, grupo["id"], ana.id)
+    assert (await adiciona_membro(ana.client, grupo["id"], ana.id)).status_code == 409
 
 
-async def test_grupo_ou_usuario_inexistente_e_404(client):
-    ana = await cria_usuario(client)
-    grupo = await cria_grupo(client)
-    assert (await client.get("/groups/999")).status_code == 404
-    assert (await adiciona_membro(client, 999, ana["id"])).status_code == 404
-    assert (await adiciona_membro(client, grupo["id"], 999)).status_code == 404
+async def test_grupo_ou_usuario_inexistente_e_404(pessoa):
+    ana = await pessoa("Ana")
+    grupo = await cria_grupo(ana.client)
+    assert (await ana.client.get("/groups/999")).status_code == 404
+    assert (await adiciona_membro(ana.client, 999, ana.id)).status_code == 404
+    assert (await adiciona_membro(ana.client, grupo["id"], 999)).status_code == 404
 
 
-async def test_buscar_grupo_nao_cresce_com_o_numero_de_membros(client, engine_de_teste):
-    grupo = await cria_grupo(client)
-    for i in range(5):
-        user = await cria_usuario(client, email=f"m{i}@example.com")
-        await adiciona_membro(client, grupo["id"], user["id"])
+async def test_buscar_grupo_nao_cresce_com_o_numero_de_membros(pessoa, engine_de_teste):
+    membros = [await pessoa(nome) for nome in ["Ana", "Bruno", "Carla", "Davi", "Eva"]]
+    ana = membros[0]
+    grupo = await cria_grupo(ana.client)
+    for membro in membros:
+        await adiciona_membro(ana.client, grupo["id"], membro.id)
     with conta_consultas(engine_de_teste) as contagem:
-        resp = await client.get(f"/groups/{grupo['id']}")
+        resp = await ana.client.get(f"/groups/{grupo['id']}")
     assert len(resp.json()["membros"]) == 5
-    assert contagem["n"] == 3  # grupo, membros, usuários
+    # +1: a consulta que pergunta quem é você (lição 05 do cap. 6).
+    assert contagem["n"] == 4  # quem é você, grupo, membros, usuários

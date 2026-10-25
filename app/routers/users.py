@@ -3,6 +3,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
+from app.dependencies import get_current_user
+from app.models import User
 from app.repositories import UserRepository
 from app.schemas import UserCreate, UserMeOut, UserOut
 from app.security import hash_senha
@@ -24,12 +26,20 @@ async def create_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=409, detail="email já cadastrado")
 
 
-@router.get("", response_model=list[UserOut])
+# Daqui para baixo, login exigido rota a rota: o POST /users lá em cima é público.
+@router.get("", response_model=list[UserOut], dependencies=[Depends(get_current_user)])
 async def list_users(db: AsyncSession = Depends(get_db)):
     return await UserRepository(db).list_all()
 
 
-@router.get("/{user_id}", response_model=UserOut)
+# Antes do /{user_id}: as rotas casam na ordem em que foram declaradas, e "me" viraria
+# um user_id que não é inteiro (422).
+@router.get("/me", response_model=UserMeOut)
+async def me(user: User = Depends(get_current_user)):
+    return user
+
+
+@router.get("/{user_id}", response_model=UserOut, dependencies=[Depends(get_current_user)])
 async def get_user(user_id: int, db: AsyncSession = Depends(get_db)):
     user = await UserRepository(db).get(user_id)
     if user is None:

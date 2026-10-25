@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 import app.models  # noqa: F401  (registra as tabelas no metadata)
 from app.database import Base, get_db
 from app.main import app as fastapi_app
+from tests.apoio import Pessoa, cria_usuario, faz_login
 
 # O mesmo servidor do compose.yaml, outro banco: o pytest nunca toca no fairfare.
 ADMIN_URL = "postgresql+psycopg://fairfare:fairfare@localhost:5432/postgres"
@@ -82,3 +83,31 @@ async def client(engine_de_teste):
     async with AsyncClient(transport=transport, base_url="http://test") as test_client:
         yield test_client
     fastapi_app.dependency_overrides.clear()
+
+
+@pytest.fixture()
+async def pessoa(client):
+    """Fábrica de pessoas logadas: `ana = await pessoa("Ana")`.
+
+    Depende do `client` para os dependency_overrides e o limitador zerado já estarem montados.
+    Cada pessoa ganha um AsyncClient próprio, com IP próprio (10.0.0.1, 10.0.0.2, ...): o
+    próprio balde no rate limiter. Com um IP só, cadastro + login de cada pessoa somados às
+    requests do teste podem passar das 20 fichas (no ensaio do spike, um teste levou 429;
+    lição 05 do cap. 6). Nenhuma pessoa usa o 127.0.0.1 do `client` anônimo.
+    """
+    clientes = []
+
+    async def nova(nome: str = "Ana", email: str | None = None) -> Pessoa:
+        email = email or f"{nome.lower()}@example.com"
+        ip = f"10.0.0.{len(clientes) + 1}"
+        transport = ASGITransport(app=fastapi_app, client=(ip, 123))
+        cliente = AsyncClient(transport=transport, base_url="http://test")
+        clientes.append(cliente)
+        dados = await cria_usuario(cliente, email=email, nome=nome)
+        token = await faz_login(cliente, email)
+        cliente.headers["Authorization"] = f"Bearer {token}"
+        return Pessoa(id=dados["id"], nome=dados["nome"], email=dados["email"], client=cliente)
+
+    yield nova
+    for cliente in clientes:
+        await cliente.aclose()

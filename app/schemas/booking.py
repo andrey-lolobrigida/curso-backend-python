@@ -4,7 +4,8 @@ from pydantic import BaseModel, field_validator, model_validator
 
 
 class BookingCreate(BaseModel):
-    user_id: int
+    # Sem user_id: quem reserva é quem está logado (lição 05 do cap. 6). Um user_id que
+    # ainda chegue no corpo é descartado, como todo campo que o schema não declara.
     resource_id: int
     starts_at: datetime
     ends_at: datetime

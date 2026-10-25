@@ -1,10 +1,12 @@
 import hashlib
+import re
 from datetime import timedelta
 
 import pytest
 from sqlalchemy import text
 
-from tests.apoio import SENHA_DE_TESTE, cria_usuario, faz_login
+from app.main import app as fastapi_app
+from tests.apoio import SENHA_DE_TESTE, cria_recurso, cria_reserva, cria_usuario, faz_login
 
 
 async def test_cadastro_nao_devolve_a_senha_nem_o_hash(client):
@@ -48,11 +50,11 @@ async def test_senha_longa_demais_e_422(client):
     assert resp.status_code == 422
 
 
-async def test_listagem_de_usuarios_nao_mostra_email(client):
-    user = await cria_usuario(client)
-    lista = await client.get("/users")
+async def test_listagem_de_usuarios_nao_mostra_email(pessoa):
+    ana = await pessoa("Ana")
+    lista = await ana.client.get("/users")
     assert [set(u) for u in lista.json()] == [{"id", "nome"}]
-    um = await client.get(f"/users/{user['id']}")
+    um = await ana.client.get(f"/users/{ana.id}")
     assert set(um.json()) == {"id", "nome"}
 
 
@@ -135,3 +137,110 @@ async def test_login_com_senha_longa_demais_e_422(client):
         "/auth/login", json={"email": "ana@example.com", "senha": "x" * 10_000}
     )
     assert resp.status_code == 422
+
+
+async def test_rota_sem_token_e_401(client):
+    resp = await client.get("/bookings")
+    assert resp.status_code == 401
+    assert resp.json() == {"detail": "Not authenticated"}
+    assert resp.headers["www-authenticate"] == "Bearer"
+
+
+async def test_token_desconhecido_e_401(client):
+    resp = await client.get("/bookings", headers={"Authorization": "Bearer lixo"})
+    assert (resp.status_code, resp.json()["detail"]) == (401, "token inválido ou vencido")
+    assert resp.headers["www-authenticate"] == "Bearer"
+
+
+@pytest.mark.parametrize("header", ["Basic abc", "Bearer", "Bearer ", "Token xyz"])
+async def test_authorization_mal_formado_e_401(client, header):
+    # Crachá mal escrito é crachá ausente: 401 com o header, nunca 500 nem 422.
+    resp = await client.get("/bookings", headers={"Authorization": header})
+    assert resp.status_code == 401
+    assert resp.headers["www-authenticate"] == "Bearer"
+
+
+async def test_bearer_minusculo_funciona(pessoa):
+    # O nome do esquema não diferencia maiúsculas (RFC 9110): "bearer" vale.
+    ana = await pessoa("Ana")
+    token = ana.client.headers["Authorization"].removeprefix("Bearer ")
+    resp = await ana.client.get("/users/me", headers={"Authorization": f"bearer {token}"})
+    assert resp.status_code == 200
+
+
+async def test_eu(pessoa):
+    ana = await pessoa("Ana")
+    resp = await ana.client.get("/users/me")
+    assert resp.json() == {"id": ana.id, "nome": "Ana", "email": "ana@example.com"}
+
+
+async def test_cadastro_e_login_continuam_publicos(client):
+    # Sem header nenhum: quem ainda não tem crachá precisa conseguir pedir um.
+    cadastro = await client.post(
+        "/users", json={"nome": "Ana", "email": "ana@example.com", "senha": SENHA_DE_TESTE}
+    )
+    assert cadastro.status_code == 201
+    login = await client.post(
+        "/auth/login", json={"email": "ana@example.com", "senha": SENHA_DE_TESTE}
+    )
+    assert login.status_code == 200
+
+
+async def test_reserva_e_de_quem_esta_logado(pessoa):
+    await pessoa("Bruno")  # o Bruno vem antes: a Ana não é o usuário 1 por acaso
+    ana = await pessoa("Ana")
+    resource = await cria_recurso(ana.client)
+    resp = await cria_reserva(
+        ana.client, resource["id"], "2030-01-01T10:00:00Z", "2030-01-01T12:00:00Z"
+    )
+    assert resp.status_code == 201
+    assert (resp.json()["user_id"], resp.json()["user_nome"]) == (ana.id, "Ana")
+
+
+async def test_user_id_no_corpo_e_ignorado(pessoa):
+    # Um cliente antigo, ou malandro, manda o user_id do Bruno. O corpo não diz quem é você.
+    bruno = await pessoa("Bruno")
+    ana = await pessoa("Ana")
+    resource = await cria_recurso(ana.client)
+    resp = await ana.client.post(
+        "/bookings",
+        json={
+            "user_id": bruno.id,
+            "resource_id": resource["id"],
+            "starts_at": "2030-01-01T10:00:00Z",
+            "ends_at": "2030-01-01T12:00:00Z",
+        },
+    )
+    assert resp.status_code == 201
+    assert resp.json()["user_id"] == ana.id
+
+
+# As únicas portas abertas de propósito: quem ainda não tem crachá precisa conseguir pedir um.
+ROTAS_PUBLICAS = {("POST", "/users"), ("POST", "/auth/login")}
+
+
+def todas_as_rotas():
+    """Todo par (método, caminho) do app, lido do esquema OpenAPI: a lista pública de rotas,
+    a mesma que o Swagger mostra. /docs e /openapi.json não entram nela. Uma rota com
+    include_in_schema=False também não entraria: o FairFare não tem nenhuma."""
+    return {
+        (metodo.upper(), caminho)
+        for caminho, operacoes in fastapi_app.openapi()["paths"].items()
+        for metodo in operacoes
+    }
+
+
+async def test_toda_rota_exige_login_menos_as_publicas(client):
+    # O guardião de rotas: esquecer o dependencies= numa rota nova deixa este teste vermelho.
+    rotas = todas_as_rotas()
+    # Travas contra o laço vazio: a lista tem as públicas, e tem mais do que elas.
+    assert ROTAS_PUBLICAS <= rotas
+    assert len(rotas) > 2
+    abertas = []
+    for metodo, caminho in sorted(rotas - ROTAS_PUBLICAS):
+        url = re.sub(r"\{[^}]+\}", "1", caminho)  # /groups/{group_id} -> /groups/1
+        # Sem corpo: o 401 vem antes da validação do corpo.
+        resp = await client.request(metodo, url)
+        if resp.status_code != 401 or resp.headers.get("www-authenticate") != "Bearer":
+            abertas.append((metodo, caminho, resp.status_code))
+    assert abertas == []

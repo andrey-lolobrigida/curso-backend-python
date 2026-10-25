@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
+from app.dependencies import get_current_user
 from app.schemas import (
     BalanceOut,
     ExpenseCreate,
@@ -24,7 +25,9 @@ from app.services import (
     UserNotFoundError,
 )
 
-router = APIRouter(prefix="/groups", tags=["groups"])
+# Login exigido no router inteiro. Por enquanto, só login: qualquer pessoa logada mexe em
+# qualquer grupo, e o paid_by e o para_user_id ainda vêm do corpo (lição 12).
+router = APIRouter(prefix="/groups", tags=["groups"], dependencies=[Depends(get_current_user)])
 
 
 @router.post("", status_code=201, response_model=GroupOut)

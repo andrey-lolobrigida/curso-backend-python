@@ -2,53 +2,53 @@
 
 import time
 
-from tests.apoio import cria_recurso, cria_reserva, cria_usuario
+from tests.apoio import cria_recurso, cria_reserva
 
 
-async def test_mesmo_instante_em_fusos_diferentes_conflita(client):
-    user = await cria_usuario(client)
-    resource = await cria_recurso(client)
+async def test_mesmo_instante_em_fusos_diferentes_conflita(pessoa):
+    ana = await pessoa("Ana")
+    resource = await cria_recurso(ana.client)
     primeira = await cria_reserva(
-        client, user["id"], resource["id"], "2030-01-01T10:00:00-03:00", "2030-01-01T12:00:00-03:00"
+        ana.client, resource["id"], "2030-01-01T10:00:00-03:00", "2030-01-01T12:00:00-03:00"
     )
     assert primeira.status_code == 201
     # 13:00 em UTC é 10:00 em São Paulo: o mesmo instante, a mesma quadra.
     segunda = await cria_reserva(
-        client, user["id"], resource["id"], "2030-01-01T13:00:00Z", "2030-01-01T15:00:00Z"
+        ana.client, resource["id"], "2030-01-01T13:00:00Z", "2030-01-01T15:00:00Z"
     )
     assert segunda.status_code == 409
 
 
-async def test_horario_volta_em_utc(client):
-    user = await cria_usuario(client)
-    resource = await cria_recurso(client)
+async def test_horario_volta_em_utc(pessoa):
+    ana = await pessoa("Ana")
+    resource = await cria_recurso(ana.client)
     resp = await cria_reserva(
-        client, user["id"], resource["id"], "2030-01-01T10:00:00-03:00", "2030-01-01T12:00:00-03:00"
+        ana.client, resource["id"], "2030-01-01T10:00:00-03:00", "2030-01-01T12:00:00-03:00"
     )
     assert resp.status_code == 201
     # timestamptz guarda o instante, não o fuso de quem mandou: volta em UTC.
     assert resp.json()["starts_at"] == "2030-01-01T13:00:00Z"
 
 
-async def test_horario_sem_fuso_e_lido_como_utc(client):
-    user = await cria_usuario(client)
-    resource = await cria_recurso(client)
+async def test_horario_sem_fuso_e_lido_como_utc(pessoa):
+    ana = await pessoa("Ana")
+    resource = await cria_recurso(ana.client)
     resp = await cria_reserva(
-        client, user["id"], resource["id"], "2030-01-01T10:00:00", "2030-01-01T12:00:00"
+        ana.client, resource["id"], "2030-01-01T10:00:00", "2030-01-01T12:00:00"
     )
     assert resp.status_code == 201
     assert resp.json()["starts_at"] == "2030-01-01T10:00:00Z"
 
 
-async def test_sem_fuso_e_utc_mesmo_com_o_servidor_em_outro_fuso(client, monkeypatch):
+async def test_sem_fuso_e_utc_mesmo_com_o_servidor_em_outro_fuso(pessoa, monkeypatch):
     # A decisão "sem fuso é UTC" não pode depender do relógio da máquina onde o app roda.
     monkeypatch.setenv("TZ", "America/Sao_Paulo")
     time.tzset()
     try:
-        user = await cria_usuario(client)
-        resource = await cria_recurso(client)
+        ana = await pessoa("Ana")
+        resource = await cria_recurso(ana.client)
         resp = await cria_reserva(
-            client, user["id"], resource["id"], "2030-01-01T10:00:00", "2030-01-01T12:00:00"
+            ana.client, resource["id"], "2030-01-01T10:00:00", "2030-01-01T12:00:00"
         )
     finally:
         monkeypatch.undo()
@@ -57,24 +57,24 @@ async def test_sem_fuso_e_utc_mesmo_com_o_servidor_em_outro_fuso(client, monkeyp
     assert resp.json()["starts_at"] == "2030-01-01T10:00:00Z"
 
 
-async def test_fusos_misturados_sao_422_nao_500(client):
-    user = await cria_usuario(client)
-    resource = await cria_recurso(client)
+async def test_fusos_misturados_sao_422_nao_500(pessoa):
+    ana = await pessoa("Ana")
+    resource = await cria_recurso(ana.client)
     # 10:00 em São Paulo = 13:00 UTC; o fim, sem fuso, é 12:00 UTC: termina antes de começar.
     resp = await cria_reserva(
-        client, user["id"], resource["id"], "2030-01-01T10:00:00-03:00", "2030-01-01T12:00:00"
+        ana.client, resource["id"], "2030-01-01T10:00:00-03:00", "2030-01-01T12:00:00"
     )
     assert resp.status_code == 422
 
 
-async def test_encostadas_em_fusos_diferentes_nao_conflitam(client):
-    user = await cria_usuario(client)
-    resource = await cria_recurso(client)
+async def test_encostadas_em_fusos_diferentes_nao_conflitam(pessoa):
+    ana = await pessoa("Ana")
+    resource = await cria_recurso(ana.client)
     await cria_reserva(
-        client, user["id"], resource["id"], "2030-01-01T10:00:00-03:00", "2030-01-01T12:00:00-03:00"
+        ana.client, resource["id"], "2030-01-01T10:00:00-03:00", "2030-01-01T12:00:00-03:00"
     )
     # 15:00 UTC é 12:00 em São Paulo: começa exatamente quando a outra termina.
     resp = await cria_reserva(
-        client, user["id"], resource["id"], "2030-01-01T15:00:00Z", "2030-01-01T17:00:00Z"
+        ana.client, resource["id"], "2030-01-01T15:00:00Z", "2030-01-01T17:00:00Z"
     )
     assert resp.status_code == 201

@@ -1,9 +1,9 @@
 from tests.apoio import SENHA_DE_TESTE, cria_recurso, cria_reserva, cria_usuario
 
 
-async def test_cria_e_busca_usuario(client):
-    user = await cria_usuario(client)
-    resp = await client.get(f"/users/{user['id']}")
+async def test_cria_e_busca_usuario(pessoa):
+    ana = await pessoa("Ana")
+    resp = await ana.client.get(f"/users/{ana.id}")
     assert resp.status_code == 200
     assert resp.json()["nome"] == "Ana"
 
@@ -24,108 +24,105 @@ async def test_email_duplicado_e_409(client):
     assert resp.status_code == 409
 
 
-async def test_usuario_inexistente_e_404(client):
-    resp = await client.get("/users/999")
+async def test_usuario_inexistente_e_404(pessoa):
+    ana = await pessoa("Ana")
+    resp = await ana.client.get("/users/999")
     assert resp.status_code == 404
 
 
-async def test_cria_e_lista_recurso(client):
-    await cria_recurso(client)
-    resp = await client.get("/resources")
+async def test_cria_e_lista_recurso(pessoa):
+    ana = await pessoa("Ana")
+    await cria_recurso(ana.client)
+    resp = await ana.client.get("/resources")
     assert resp.status_code == 200
     assert resp.json()[0]["tipo"] == "quadra"
 
 
-async def test_cria_reserva(client):
-    user = await cria_usuario(client)
-    resource = await cria_recurso(client)
+async def test_cria_reserva(pessoa):
+    ana = await pessoa("Ana")
+    resource = await cria_recurso(ana.client)
     resp = await cria_reserva(
-        client, user["id"], resource["id"], "2026-08-01T10:00:00", "2026-08-01T12:00:00"
+        ana.client, resource["id"], "2026-08-01T10:00:00", "2026-08-01T12:00:00"
     )
     assert resp.status_code == 201
     assert resp.json()["user_nome"] == "Ana"
     assert resp.json()["resource_nome"] == "Quadra 1"
 
 
-async def test_reserva_conflitante_e_409(client):
-    user = await cria_usuario(client)
-    resource = await cria_recurso(client)
-    await cria_reserva(
-        client, user["id"], resource["id"], "2026-08-01T10:00:00", "2026-08-01T12:00:00"
-    )
+async def test_reserva_conflitante_e_409(pessoa):
+    ana = await pessoa("Ana")
+    resource = await cria_recurso(ana.client)
+    await cria_reserva(ana.client, resource["id"], "2026-08-01T10:00:00", "2026-08-01T12:00:00")
     resp = await cria_reserva(
-        client, user["id"], resource["id"], "2026-08-01T11:00:00", "2026-08-01T13:00:00"
+        ana.client, resource["id"], "2026-08-01T11:00:00", "2026-08-01T13:00:00"
     )
     assert resp.status_code == 409
 
 
-async def test_reservas_encostadas_nao_conflitam(client):
-    user = await cria_usuario(client)
-    resource = await cria_recurso(client)
-    await cria_reserva(
-        client, user["id"], resource["id"], "2026-08-01T10:00:00", "2026-08-01T12:00:00"
-    )
+async def test_reservas_encostadas_nao_conflitam(pessoa):
+    ana = await pessoa("Ana")
+    resource = await cria_recurso(ana.client)
+    await cria_reserva(ana.client, resource["id"], "2026-08-01T10:00:00", "2026-08-01T12:00:00")
     resp = await cria_reserva(
-        client, user["id"], resource["id"], "2026-08-01T12:00:00", "2026-08-01T14:00:00"
+        ana.client, resource["id"], "2026-08-01T12:00:00", "2026-08-01T14:00:00"
     )
     assert resp.status_code == 201
 
 
-async def test_reserva_com_fim_antes_do_inicio_e_422(client):
-    user = await cria_usuario(client)
-    resource = await cria_recurso(client)
+async def test_reserva_com_fim_antes_do_inicio_e_422(pessoa):
+    ana = await pessoa("Ana")
+    resource = await cria_recurso(ana.client)
     resp = await cria_reserva(
-        client, user["id"], resource["id"], "2026-08-01T12:00:00", "2026-08-01T10:00:00"
+        ana.client, resource["id"], "2026-08-01T12:00:00", "2026-08-01T10:00:00"
     )
     assert resp.status_code == 422
 
 
-async def test_reserva_com_usuario_fantasma_e_404(client):
-    resource = await cria_recurso(client)
-    resp = await cria_reserva(
-        client, 999, resource["id"], "2026-08-01T10:00:00", "2026-08-01T12:00:00"
-    )
+async def test_reserva_com_recurso_fantasma_e_404(pessoa):
+    # Usuário fantasma não existe mais: quem reserva vem do token. Sobrou o recurso.
+    ana = await pessoa("Ana")
+    resp = await cria_reserva(ana.client, 999, "2026-08-01T10:00:00", "2026-08-01T12:00:00")
     assert resp.status_code == 404
+    assert resp.json()["detail"] == "recurso não existe"
 
 
-async def test_cancela_reserva_futura(client):
-    user = await cria_usuario(client)
-    resource = await cria_recurso(client)
+async def test_cancela_reserva_futura(pessoa):
+    ana = await pessoa("Ana")
+    resource = await cria_recurso(ana.client)
     resposta = await cria_reserva(
-        client, user["id"], resource["id"], "2030-01-01T10:00:00", "2030-01-01T12:00:00"
+        ana.client, resource["id"], "2030-01-01T10:00:00", "2030-01-01T12:00:00"
     )
     booking = resposta.json()
-    resp = await client.delete(f"/bookings/{booking['id']}")
+    resp = await ana.client.delete(f"/bookings/{booking['id']}")
     assert resp.status_code == 204
-    listagem = await client.get("/bookings")
+    listagem = await ana.client.get("/bookings")
     assert listagem.json() == []
 
 
-async def test_nao_cancela_reserva_passada(client):
-    user = await cria_usuario(client)
-    resource = await cria_recurso(client)
+async def test_nao_cancela_reserva_passada(pessoa):
+    ana = await pessoa("Ana")
+    resource = await cria_recurso(ana.client)
     resposta = await cria_reserva(
-        client, user["id"], resource["id"], "2020-01-01T10:00:00", "2020-01-01T12:00:00"
+        ana.client, resource["id"], "2020-01-01T10:00:00", "2020-01-01T12:00:00"
     )
     booking = resposta.json()
-    resp = await client.delete(f"/bookings/{booking['id']}")
+    resp = await ana.client.delete(f"/bookings/{booking['id']}")
     assert resp.status_code == 409
 
 
-async def test_cancelar_reserva_inexistente_e_404(client):
-    resp = await client.delete("/bookings/999")
+async def test_cancelar_reserva_inexistente_e_404(pessoa):
+    ana = await pessoa("Ana")
+    resp = await ana.client.delete("/bookings/999")
     assert resp.status_code == 404
 
 
-async def test_lista_reservas_com_nomes(client):
+async def test_lista_reservas_com_nomes(pessoa):
     # Nenhum teste listava uma reserva (o GET do cancelamento lista a tabela vazia):
     # o bug da lição 02 passava pelo create e só morria aqui.
-    user = await cria_usuario(client)
-    resource = await cria_recurso(client)
-    await cria_reserva(
-        client, user["id"], resource["id"], "2030-01-01T10:00:00Z", "2030-01-01T12:00:00Z"
-    )
-    resp = await client.get("/bookings")
+    ana = await pessoa("Ana")
+    resource = await cria_recurso(ana.client)
+    await cria_reserva(ana.client, resource["id"], "2030-01-01T10:00:00Z", "2030-01-01T12:00:00Z")
+    resp = await ana.client.get("/bookings")
     assert resp.status_code == 200
     [reserva] = resp.json()
     assert reserva["user_nome"] == "Ana"

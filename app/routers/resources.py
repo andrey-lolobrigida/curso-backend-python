@@ -2,10 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
+from app.dependencies import get_current_user
 from app.repositories import ResourceRepository
 from app.schemas import ResourceCreate, ResourceOut
 
-router = APIRouter(prefix="/resources", tags=["resources"])
+# Login exigido no router inteiro: rota nova que nascer aqui já nasce protegida.
+router = APIRouter(
+    prefix="/resources", tags=["resources"], dependencies=[Depends(get_current_user)]
+)
 
 
 @router.post("", status_code=201, response_model=ResourceOut)

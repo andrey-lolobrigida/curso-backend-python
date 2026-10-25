@@ -2,18 +2,13 @@ from datetime import UTC, datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import Booking
-from app.repositories import (
-    BookingOverlapError,
-    BookingRepository,
-    ResourceRepository,
-    UserRepository,
-)
+from app.models import Booking, User
+from app.repositories import BookingOverlapError, BookingRepository, ResourceRepository
 from app.schemas import BookingCreate, BookingOut
 
 
 class RelatedNotFoundError(Exception):
-    pass
+    """O recurso da reserva não existe. (O usuário existe sempre: veio do token.)"""
 
 
 class BookingConflictError(Exception):
@@ -32,15 +27,13 @@ class BookingService:
     def __init__(self, db: AsyncSession):
         self.db = db
         self.bookings = BookingRepository(db)
-        self.users = UserRepository(db)
         self.resources = ResourceRepository(db)
 
-    async def create(self, data: BookingCreate) -> BookingOut:
+    async def create(self, data: BookingCreate, user: User) -> BookingOut:
         # A transação é do service: commit na saída normal, rollback em qualquer exceção.
         async with self.db.begin():
-            user = await self.users.get(data.user_id)
             resource = await self.resources.get(data.resource_id)
-            if user is None or resource is None:
+            if resource is None:
                 raise RelatedNotFoundError
             overlapping = await self.bookings.find_overlapping(
                 data.resource_id, data.starts_at, data.ends_at
@@ -49,7 +42,7 @@ class BookingService:
                 raise BookingConflictError
             try:
                 booking = await self.bookings.create(
-                    data.user_id, data.resource_id, data.starts_at, data.ends_at
+                    user.id, data.resource_id, data.starts_at, data.ends_at
                 )
             except BookingOverlapError:
                 # A verificação acima é o caminho rápido e educado; a garantia é do banco.

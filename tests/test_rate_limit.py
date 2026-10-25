@@ -76,7 +76,10 @@ async def test_429_atravessa_o_cors(client):
     """Integração com o FairFare: o CORS é a camada de fora, então o 429 sai com os headers.
     Sem isso o browser mostraria 'erro de CORS' em vez do 429 de verdade."""
     origem = "http://localhost:8080"
+    # Anônimo de propósito (cap. 6, lição 05): o GET /users pede login e responde 401, mas o
+    # limitador fica antes da rota e gasta a ficha mesmo assim. Crachá ausente não poupa balde.
     respostas = [await client.get("/users", headers={"Origin": origem}) for _ in range(40)]
+    assert {r.status_code for r in respostas} == {401, 429}
     recusadas = [r for r in respostas if r.status_code == 429]
     assert recusadas, "40 requests seguidas e nenhum 429: o rate limiter não está na pilha"
     for r in recusadas:

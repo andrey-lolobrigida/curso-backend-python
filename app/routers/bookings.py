@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
+from app.dependencies import get_current_user
+from app.models import User
 from app.schemas import BookingCreate, BookingOut
 from app.services import (
     BookingConflictError,
@@ -11,15 +13,21 @@ from app.services import (
     RelatedNotFoundError,
 )
 
-router = APIRouter(prefix="/bookings", tags=["bookings"])
+# Login exigido no router inteiro: rota nova que nascer aqui já nasce protegida.
+router = APIRouter(prefix="/bookings", tags=["bookings"], dependencies=[Depends(get_current_user)])
 
 
 @router.post("", status_code=201, response_model=BookingOut)
-async def create_booking(data: BookingCreate, db: AsyncSession = Depends(get_db)):
+async def create_booking(
+    data: BookingCreate,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    # A mesma dependência do router: o FastAPI guarda o resultado, e a consulta roda uma vez.
     try:
-        return await BookingService(db).create(data)
+        return await BookingService(db).create(data, user)
     except RelatedNotFoundError:
-        raise HTTPException(status_code=404, detail="usuário ou recurso não existe")
+        raise HTTPException(status_code=404, detail="recurso não existe")
     except BookingConflictError:
         raise HTTPException(status_code=409, detail="o recurso já está reservado nesse horário")
 

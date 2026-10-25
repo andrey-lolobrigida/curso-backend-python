@@ -1,8 +1,9 @@
 from datetime import datetime
 
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import UserSession
+from app.models import User, UserSession
 from app.security import VALIDADE_DA_SESSAO
 
 
@@ -21,3 +22,13 @@ class SessionRepository:
         self.db.add(sessao)
         await self.db.flush()
         return sessao
+
+    async def user_by_token_hash(self, token_hash: str) -> User | None:
+        # Uma ida ao banco: o usuário dono de uma sessão com esse hash e ainda na validade.
+        # O "agora" é o now() do banco, não o relógio do Python: um relógio só decide.
+        stmt = (
+            select(User)
+            .join(UserSession, UserSession.user_id == User.id)
+            .where(UserSession.token_hash == token_hash, UserSession.expira_em > func.now())
+        )
+        return await self.db.scalar(stmt)
