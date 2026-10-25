@@ -10,8 +10,7 @@ gente veio medir.
 | `senhas.py` | 02 | `uv run python chapters/06-autenticacao-e-seguranca/bancada/senhas.py` | quatro jeitos de guardar senha (texto puro, sha256, sha256 com sal, scrypt) e o ataque de dicionário contra cada um, com sha256 por segundo e ms por scrypt medidos |
 | `argon2_no_loop.py` | 03 | `uv run python chapters/06-autenticacao-e-seguranca/bancada/argon2_no_loop.py` | quanto custa um `hash` e um `verify` (relógio × CPU); oito `verify` do argon2 chamados no loop × numa thread, com um batimento medindo quanto o loop travou; e 20 `verify` em sequência × em 4 threads, para ver o argon2 soltar o GIL |
 | `enumeracao.py` | 06 | `uv run python chapters/06-autenticacao-e-seguranca/bancada/enumeracao.py` (com o uvicorn de pé na porta 8000) | 30 logins de email inexistente × 30 de senha errada, intercalados, contra o app de verdade: mediana, mínimo e máximo de cada grupo, a diferença e a razão entre as medianas |
-
-*(A tabela cresce junto com o capítulo.)*
+| `jwt_na_mao.py` | 08 | `uv run python chapters/06-autenticacao-e-seguranca/bancada/jwt_na_mao.py` (opcional: `JWT_SEGREDO=...` antes) | um JWT HS256 montado à mão e conferido byte a byte contra o RFC 7515 (A.1); o payload lido sem segredo; o payload adulterado que a assinatura recusa; o `alg: none` que o verificador ingênuo aceita; e a cópia do token que continua valendo depois do "logout" |
 
 O `senhas.py` é só biblioteca padrão: não fala com o banco nem com o app, e não precisa do
 compose de pé. Os sais e os hashes do ato 3 mudam a cada execução. Os tempos são de um
@@ -33,3 +32,9 @@ máquina descansa entre as requests.
 Para ver o "antes" na sua máquina, comente a linha `await confere_senha(HASH_FANTASMA, senha)`
 no `app/services/auth.py`, reinicie o uvicorn e rode de novo. Depois descomente. Enquanto ela
 estiver comentada, o `ruff` reclama do `HASH_FANTASMA` sem uso; é esperado.
+
+O `jwt_na_mao.py` é só biblioteca padrão, como o `senhas.py`: não fala com o banco nem com o
+app, e não precisa do compose de pé. O segredo vem da variável de ambiente `JWT_SEGREDO`; sem
+ela, o script usa um padrão escrito no código e avisa. O ato 1 dá sempre a mesma assinatura (é a
+do RFC). Do ato 2 em diante, a assinatura muda com o segredo e com o relógio, porque o `exp` é
+"agora + 1 hora". O FairFare não usa JWT: ele continua com o token opaco da lição 04.
