@@ -7,7 +7,8 @@ from app.schemas.dinheiro import Dinheiro
 
 
 class ExpenseCreate(BaseModel):
-    paid_by: int
+    # Sem paid_by: quem paga é quem lança, e quem lança vem do token (lição 12 do cap. 6).
+    # Um paid_by no corpo é descartado, como todo campo que o schema não declara.
     descricao: str
     valor: Dinheiro
     # Sem a lista: o grupo todo participa.

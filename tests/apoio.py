@@ -78,15 +78,16 @@ async def adiciona_membro(client, group_id, user_id):
     return await client.post(f"/groups/{group_id}/members", json={"user_id": user_id})
 
 
-async def cria_despesa(client, group_id, paid_by, valor, participantes=None, descricao="Jantar"):
-    corpo = {"paid_by": paid_by, "descricao": descricao, "valor": valor}
+async def cria_despesa(client, group_id, valor, participantes=None, descricao="Jantar"):
+    # Sem paid_by: quem paga é quem lança, a pessoa do client (lição 12 do cap. 6).
+    corpo = {"descricao": descricao, "valor": valor}
     if participantes is not None:
         corpo["participantes"] = participantes
     return await client.post(f"/groups/{group_id}/expenses", json=corpo)
 
 
-async def quita(client, group_id, de, para, valor):
+async def quita(client, group_id, de, valor):
+    # Sem para_user_id: quem recebe é quem lança, a pessoa do client (lição 12 do cap. 6).
     return await client.post(
-        f"/groups/{group_id}/settlements",
-        json={"de_user_id": de, "para_user_id": para, "valor": valor},
+        f"/groups/{group_id}/settlements", json={"de_user_id": de, "valor": valor}
     )

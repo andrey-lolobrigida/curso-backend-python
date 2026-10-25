@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import Expense
+from app.models import Expense, User
 from app.repositories import ExpenseRepository, GroupRepository
 from app.schemas import ExpenseCreate, ExpenseOut, ShareOut
 from app.services.divisao import dividir
@@ -17,18 +17,21 @@ class ExpenseService:
         self.expenses = ExpenseRepository(db)
         self.groups = GroupRepository(db)
 
-    async def create(self, group_id: int, data: ExpenseCreate) -> ExpenseOut:
+    async def create(self, group_id: int, data: ExpenseCreate, user: User) -> ExpenseOut:
         # Uma despesa são várias gravações: a despesa e uma parte por participante.
         # Ou entram todas, ou nenhuma. O begin() abraça o método INTEIRO, leituras
         # incluídas: a sessão já abre a transação na primeira consulta (lição 08).
         async with self.db.begin():
-            if not await self.groups.exists(group_id):
-                raise GroupNotFoundError
             membros = await self.groups.member_ids(group_id)
+            # Quem lança precisa ser membro. Grupo que não existe não tem membros, e cai aqui
+            # também: o mesmo 404 para os dois (lição 12 do cap. 6).
+            if user.id not in membros:
+                raise GroupNotFoundError
             participantes = data.participantes or sorted(membros)
-            if data.paid_by not in membros or not set(participantes) <= membros:
+            if not set(participantes) <= membros:
                 raise NotAMemberError
-            expense = await self.expenses.create(group_id, data.paid_by, data.descricao, data.valor)
+            # Quem paga é quem lança: ninguém lança gasto em nome de outro.
+            expense = await self.expenses.create(group_id, user.id, data.descricao, data.valor)
             for user_id, valor in dividir(data.valor, participantes).items():
                 await self.expenses.add_share(expense.id, user_id, valor)
             expense = await self.expenses.get_with_shares(expense.id)

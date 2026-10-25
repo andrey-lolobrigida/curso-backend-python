@@ -1,21 +1,16 @@
 from datetime import datetime
 from decimal import Decimal
 
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel
 
 from app.schemas.dinheiro import Dinheiro
 
 
 class SettlementCreate(BaseModel):
+    # Sem para_user_id: quem recebe é quem lança, e quem lança vem do token (lição 12 do
+    # cap. 6). O "de diferente de para" saiu daqui para o service: o schema não sabe quem pede.
     de_user_id: int
-    para_user_id: int
     valor: Dinheiro
-
-    @model_validator(mode="after")
-    def de_diferente_de_para(self):
-        if self.de_user_id == self.para_user_id:
-            raise ValueError("ninguém quita uma dívida consigo mesmo")
-        return self
 
 
 class SettlementOut(BaseModel):

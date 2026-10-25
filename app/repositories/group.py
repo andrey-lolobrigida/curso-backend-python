@@ -1,4 +1,4 @@
-from sqlalchemy import select, text
+from sqlalchemy import exists, select, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -49,8 +49,11 @@ class GroupRepository:
         await self.db.refresh(group)
         return group
 
-    async def exists(self, group_id: int) -> bool:
-        return await self.db.get(Group, group_id) is not None
+    async def is_member(self, group_id: int, user_id: int) -> bool:
+        # Uma consulta. Grupo que não existe não tem membro nenhum: False, como o de fora.
+        return await self.db.scalar(
+            select(exists().where(GroupMember.group_id == group_id, GroupMember.user_id == user_id))
+        )
 
     async def get_with_members(self, group_id: int) -> Group | None:
         # Grupo, membros e usuários: três consultas, qualquer que seja o tamanho do grupo.
