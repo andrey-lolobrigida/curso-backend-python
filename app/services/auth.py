@@ -33,3 +33,8 @@ class AuthService:
         async with self.db.begin():
             await self.sessions.create(user.id, hash_token(token), agora=datetime.now(UTC))
         return token
+
+    async def logout(self, token: str) -> None:
+        # Uma transação, um DELETE. A sessão mora no servidor, então revogar é esquecê-la.
+        async with self.db.begin():
+            await self.sessions.delete_by_token_hash(hash_token(token))

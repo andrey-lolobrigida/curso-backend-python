@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import User, UserSession
@@ -32,3 +32,8 @@ class SessionRepository:
             .where(UserSession.token_hash == token_hash, UserSession.expira_em > func.now())
         )
         return await self.db.scalar(stmt)
+
+    async def delete_by_token_hash(self, token_hash: str) -> None:
+        # Logout é isto: apagar a linha. Sem flush(): um DELETE como este vai direto ao banco,
+        # não passa pela fila do add() (lição 07).
+        await self.db.execute(delete(UserSession).where(UserSession.token_hash == token_hash))

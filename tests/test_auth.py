@@ -279,3 +279,63 @@ async def test_toda_rota_exige_login_menos_as_publicas(client):
         if resp.status_code != 401 or resp.headers.get("www-authenticate") != "Bearer":
             abertas.append((metodo, caminho, resp.status_code))
     assert abertas == []
+
+
+async def test_logout_revoga_o_token(pessoa):
+    ana = await pessoa("Ana")
+    resp = await ana.client.post("/auth/logout")
+    assert resp.status_code == 204
+    # O mesmo crachá, logo depois: a linha dele sumiu, e o token não vale mais nada.
+    resp = await ana.client.get("/users/me")
+    assert (resp.status_code, resp.json()) == (401, {"detail": "token inválido ou vencido"})
+    assert resp.headers["www-authenticate"] == "Bearer"
+
+
+async def test_logout_de_uma_sessao_nao_derruba_a_outra(pessoa, client):
+    # A Ana no celular (ana.client) e no notebook (o client, com o outro token).
+    ana = await pessoa("Ana")
+    do_notebook = await faz_login(client, ana.email)
+    assert (await ana.client.post("/auth/logout")).status_code == 204
+    assert (await ana.client.get("/users/me")).status_code == 401
+    resp = await client.get("/users/me", headers={"Authorization": f"Bearer {do_notebook}"})
+    assert resp.status_code == 200
+
+
+async def test_sessao_vencida_e_401(pessoa, engine_de_teste):
+    # O teste do relógio: em vez de esperar 24 h, o vencimento vem para o passado.
+    ana = await pessoa("Ana")
+    async with engine_de_teste.begin() as conn:
+        await conn.execute(text("UPDATE sessions SET expira_em = now() - interval '1 second'"))
+    resp = await ana.client.get("/users/me")
+    assert (resp.status_code, resp.json()) == (401, {"detail": "token inválido ou vencido"})
+    assert resp.headers["www-authenticate"] == "Bearer"
+
+
+async def test_logout_sem_token_e_401(client):
+    resp = await client.post("/auth/logout")
+    assert (resp.status_code, resp.json()) == (401, {"detail": "Not authenticated"})
+    assert resp.headers["www-authenticate"] == "Bearer"
+
+
+async def test_reloga_depois_do_logout_e_da_expiracao(pessoa, client, engine_de_teste):
+    ana = await pessoa("Ana")
+    primeiro = ana.client.headers["Authorization"]
+    # 1. Logout, e login de novo: um token novo, que funciona.
+    assert (await ana.client.post("/auth/logout")).status_code == 204
+    segundo = f"Bearer {await faz_login(client, ana.email)}"
+    assert segundo != primeiro
+    assert (await client.get("/users/me", headers={"Authorization": segundo})).status_code == 200
+    assert (await client.get("/users/me", headers={"Authorization": primeiro})).status_code == 401
+    # 2. O segundo vence, e login de novo: outro token novo, que funciona.
+    async with engine_de_teste.begin() as conn:
+        await conn.execute(text("UPDATE sessions SET expira_em = now() - interval '1 second'"))
+    assert (await client.get("/users/me", headers={"Authorization": segundo})).status_code == 401
+    terceiro = f"Bearer {await faz_login(client, ana.email)}"
+    assert terceiro not in (primeiro, segundo)
+    resp = await client.get("/users/me", headers={"Authorization": terceiro})
+    assert (resp.status_code, resp.json()["id"]) == (200, ana.id)
+    # Sem resto do anterior: o primeiro foi apagado, o segundo venceu, só o terceiro vale.
+    async with engine_de_teste.connect() as conn:
+        validas = await conn.scalar(text("SELECT count(*) FROM sessions WHERE expira_em > now()"))
+        todas = await conn.scalar(text("SELECT count(*) FROM sessions"))
+    assert (validas, todas) == (1, 2)
